@@ -1,0 +1,100 @@
+---
+import Layout from "./layouts/Layout.astro";
+import Navbar from "./components/Navbar.astro";
+import { ContactController } from "../controllers/ContactController.js";
+---
+
+<Layout title="Contactar | Desarrollador Frontend">
+  <Navbar />
+
+  <main class="min-h-screen relative flex items-center justify-center p-4">
+    <!-- Fondo de Pantalla Fijo -->
+    <div class="fixed inset-0 z-0">
+      <img
+        src="/contact-bg.png"
+        alt="Background Workspace"
+        class="w-full h-full object-cover"
+      />
+      <!-- Capa un poco más oscura para resaltar más el formulario -->
+      <div class="absolute inset-0 bg-black/60"></div>
+    </div>
+
+    <!-- Formulario: Muy Centrado, Rectangular Vertical (Estrecho) -->
+    <div
+      class="relative z-10 w-full max-w-[380px] p-8 md:p-10 rounded-[2rem] backdrop-blur-md bg-white/5 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.8)] flex flex-col justify-center reveal-on-scroll opacity-0 translate-y-10 transition-all duration-1000 ease-out"
+    >
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-white mb-2">
+          Hablemos<span class="text-accent">.</span>
+        </h2>
+        <p class="text-gray-300 text-sm font-light">Envíame un mensaje.</p>
+      </div>
+
+      <form class="flex flex-col gap-5">
+        <div>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            required
+            class="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-3.5 text-white focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm placeholder-gray-400"
+            placeholder="Nombre Completo"
+          />
+        </div>
+
+        <div>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            class="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-3.5 text-white focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm placeholder-gray-400"
+            placeholder="Correo Electrónico"
+          />
+        </div>
+
+        <div>
+          <textarea
+            id="message"
+            name="message"
+            rows="4"
+            required
+            class="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-3.5 text-white focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm resize-none placeholder-gray-400"
+            placeholder="Mensaje..."></textarea>
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-accent text-background font-bold py-3.5 rounded-xl hover:bg-white hover:scale-[1.03] transition-all duration-300 text-sm mt-2 shadow-lg"
+        >
+          Enviar
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    const setupObserver = () => {
+      const observerOptions = {
+        root: null,
+        rootMargin: "0px",
+        threshold: 0.15,
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.remove("opacity-0", "translate-y-10");
+            entry.target.classList.add("opacity-100", "translate-y-0");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, observerOptions);
+
+      const elements = document.querySelectorAll(".reveal-on-scroll");
+      elements.forEach((el) => observer.observe(el));
+    };
+
+    document.addEventListener("DOMContentLoaded", setupObserver);
+  </script>
+</Layout>

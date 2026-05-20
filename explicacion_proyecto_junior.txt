@@ -1,0 +1,66 @@
+# Guía del Proyecto Portafolio en Astro (Para Juniors)
+
+¡Hola! Bienvenido/a a tu primer vistazo a este proyecto. Este documento está diseñado para explicarte paso a paso cómo está estructurado este proyecto y para qué sirve cada parte. No te preocupes si no entiendes todo a la primera, el desarrollo web es un camino de aprendizaje constante.
+
+## 1. La Raíz del Proyecto
+
+Cuando abres la carpeta `Portafolio-Astro`, verás varios archivos y carpetas. Aquí están los más importantes:
+
+- **`package.json`**: ¡Este es el "pasaporte" de tu proyecto! Contiene información sobre el proyecto (nombre, versión) y, lo más importante, las **dependencias** (librerías de código que otras personas escribieron y que nosotros usamos). En este proyecto, verás que usamos `astro` y `tailwindcss`. También contiene los **scripts**, que son los comandos que usamos en la terminal (como `npm run dev` para iniciar el servidor de desarrollo).
+- **`package-lock.json`**: Este archivo asegura que cualquier persona que instale el proyecto (incluido tú en el futuro) descargue exactamente las mismas versiones de las dependencias que están funcionando ahora. ¡No lo edites manualmente!
+- **`astro.config.mjs`**: Aquí es donde configuramos Astro, el framework que estamos usando. Por ejemplo, aquí le decimos a Astro que use Tailwind CSS.
+- **`tailwind.config.mjs`**: Tailwind CSS es una herramienta para dar estilos (colores, tamaños, etc.) de forma rápida. En este archivo configuramos cosas personalizadas como colores de la marca o fuentes.
+- **`node_modules/`**: Aquí viven todas las librerías que se instalaron gracias al `package.json`. Esta carpeta es muy pesada y nunca se sube a GitHub (por eso se ignora en un archivo llamado `.gitignore`).
+
+## 2. La Carpeta Mágica: `src/`
+
+La carpeta `src/` (source / fuente) es donde pasarás el 99% de tu tiempo. Aquí es donde escribimos nuestro código.
+
+### `src/pages/`
+Astro usa un concepto llamado "Enrutamiento basado en archivos" (File-based routing). Esto significa que cada archivo `.astro` dentro de esta carpeta se convierte en una página web real.
+- Si tienes `src/pages/index.astro`, esa será tu página de inicio (`tusitio.com/`).
+- Si crearas `src/pages/sobre-mi.astro`, sería `tusitio.com/sobre-mi`.
+
+### `src/components/`
+Los componentes son pedazos de interfaz reutilizables. Imagina que son legos. En lugar de escribir el código de un botón 50 veces, creas un componente `Boton.astro` y lo usas donde quieras.
+- Aquí verás archivos como `Hero.astro`, que probablemente sea la sección principal (el "héroe") que se ve al entrar al portafolio.
+
+### `src/layouts/`
+Los "layouts" o diseños son envoltorios para tus páginas. Normalmente contienen la estructura base del HTML (las etiquetas `<html>`, `<head>`, `<body>`), la barra de navegación que se repite en todas las páginas y el pie de página. De esta manera, tus páginas en `src/pages/` solo se preocupan por el contenido específico de esa página.
+
+### `src/styles/`
+Aquí guardamos los archivos CSS globales, por si necesitamos estilos que apliquen a toda la página y que no estemos manejando directamente con Tailwind.
+
+## 3. ¿Qué es un archivo `.astro`?
+
+Un archivo `.astro` tiene dos partes principales:
+
+1. **El Script del Componente (Frontmatter):** Está hasta arriba del archivo, encerrado entre tres guiones `---`.
+   ```astro
+   ---
+   // ¡Aquí escribes JavaScript o TypeScript!
+   // Esto se ejecuta en el SERVIDOR (o en la compilación), no en el navegador del usuario.
+   import MiComponente from '../components/MiComponente.astro';
+   const nombre = "Desarrollador";
+   ---
+   ```
+
+2. **El Template (HTML):** Está justo debajo del script. Es donde escribes tu HTML, pero con superpoderes porque puedes usar las variables que declaraste arriba.
+   ```astro
+   <h1>Hola, {nombre}</h1>
+   <MiComponente />
+   ```
+
+## 4. ¿Cómo correr el proyecto?
+
+Para ver tu código en acción, abre una terminal en la raíz de tu proyecto y escribe:
+
+```bash
+npm run dev
+```
+
+Esto iniciará un servidor local, generalmente en `http://localhost:4321`. ¡Abre ese enlace en tu navegador y podrás ver los cambios que haces en tu código en tiempo real!
+
+---
+
+¡Mucho éxito! Recuerda: rompe cosas, investiga los errores y diviértete aprendiendo.

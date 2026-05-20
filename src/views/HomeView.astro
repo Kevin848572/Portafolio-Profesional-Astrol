@@ -1,0 +1,46 @@
+---
+import Layout from './layouts/Layout.astro';
+import Navbar from './components/Navbar.astro';
+import Hero from './components/Hero.astro';
+import { ProfileController } from '../controllers/ProfileController.js';
+
+const footerData = ProfileController.getFooterData();
+---
+
+<Layout title="Portafolio | Desarrollador Frontend">
+  <Navbar />
+  
+  <main>
+    <Hero />
+  </main>
+
+  <footer class="border-t border-white/5 py-12 text-center text-gray-500 font-light text-sm">
+    <p>&copy; {footerData.year} {footerData.copyText}</p>
+  </footer>
+
+  <!-- Script para animaciones de Scroll (Intersection Observer API) -->
+  <script>
+    const setupObserver = () => {
+      const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.15
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.remove('opacity-0', 'translate-y-10');
+            entry.target.classList.add('opacity-100', 'translate-y-0');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, observerOptions);
+
+      const elements = document.querySelectorAll('.reveal-on-scroll');
+      elements.forEach(el => observer.observe(el));
+    };
+
+    document.addEventListener('DOMContentLoaded', setupObserver);
+  </script>
+</Layout>
