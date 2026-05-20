@@ -1,25 +1,73 @@
 ---
 ---
-<nav class="fixed top-0 w-full z-50 transition-all duration-300 backdrop-blur-md bg-background/60 border-b border-white/5">
-  <div class="max-w-6xl mx-auto px-6 py-4 grid grid-cols-3 items-center">
-    <div class="flex justify-start">
-      <a href="/" class="text-2xl font-bold tracking-tighter text-textMain hover:text-accent transition-colors">
-        Dev<span class="text-accent">.</span>
-      </a>
-    </div>
+<!-- Contenedor flotante centrado en la parte superior -->
+<div class="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-auto max-w-[95%]">
+  <nav class="flex items-center gap-6 px-6 py-2.5 rounded-full border border-cardBorder backdrop-blur-lg bg-cardBg/60 shadow-[0_8px_32px_rgba(0,0,0,0.15)] transition-all">
+    <a href="/" class="text-xs uppercase tracking-wider font-semibold text-textMain/80 hover:text-accent transition-colors">HOME</a>
+    <a href="/proyectos" class="text-xs uppercase tracking-wider font-semibold text-textMain/80 hover:text-accent transition-colors">WORKS</a>
+    <a href="/habilidades" class="text-xs uppercase tracking-wider font-semibold text-textMain/80 hover:text-accent transition-colors">ABOUT</a>
+    <a href="/contactar" class="text-xs uppercase tracking-wider font-semibold text-textMain/80 hover:text-accent transition-colors">CONTACT</a>
     
-    <div class="flex justify-center">
-      <ul class="flex gap-8 text-sm font-medium">
-        <li><a href="/" class="hover:text-accent transition-colors">Inicio</a></li>
-        <li><a href="/proyectos" class="hover:text-accent transition-colors">Proyectos</a></li>
-        <li><a href="/habilidades" class="hover:text-accent transition-colors">Habilidades</a></li>
-      </ul>
-    </div>
+    <!-- Botón de cambio de tema (Sol / Luna) -->
+    <button 
+      id="theme-toggle" 
+      aria-label="Cambiar tema"
+      class="p-1 rounded-full text-textMain/75 hover:text-accent hover:bg-cardBorder transition-all flex items-center justify-center cursor-pointer ml-1"
+    >
+      <!-- Icono del Sol (Visible en modo Light) -->
+      <svg id="theme-sun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      </svg>
+      <!-- Icono de la Luna (Visible en modo Dark) -->
+      <svg id="theme-moon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    </button>
+  </nav>
+</div>
 
-    <div class="flex justify-end">
-      <a href="/contactar" class="px-6 py-2 text-sm font-medium bg-accent text-background rounded-full hover:bg-accent/90 hover:scale-105 transition-all duration-300">
-        Contactar
-      </a>
-    </div>
-  </div>
-</nav>
+<script>
+  const setupThemeToggle = () => {
+    const toggleBtn = document.getElementById('theme-toggle');
+    const sunIcon = document.getElementById('theme-sun');
+    const moonIcon = document.getElementById('theme-moon');
+
+    const updateIcons = () => {
+      const isLight = document.documentElement.classList.contains('light');
+      if (isLight) {
+        sunIcon?.classList.remove('hidden');
+        moonIcon?.classList.add('hidden');
+      } else {
+        sunIcon?.classList.add('hidden');
+        moonIcon?.classList.remove('hidden');
+      }
+    };
+
+    // Inicializar iconos
+    updateIcons();
+
+    // Manejar Click
+    toggleBtn?.addEventListener('click', () => {
+      const isLight = document.documentElement.classList.contains('light');
+      if (isLight) {
+        document.documentElement.classList.remove('light');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.add('light');
+        localStorage.setItem('theme', 'light');
+      }
+      updateIcons();
+    });
+  };
+
+  // Ejecutar en la carga del documento
+  document.addEventListener('DOMContentLoaded', setupThemeToggle);
+</script>

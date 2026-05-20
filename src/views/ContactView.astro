@@ -8,26 +8,26 @@ import { ContactController } from "../controllers/ContactController.js";
   <Navbar />
 
   <main class="min-h-screen relative flex items-center justify-center p-4">
-    <!-- Fondo de Pantalla Fijo -->
+    <!-- Fondo de Pantalla Fijo con Capa Adaptativa -->
     <div class="fixed inset-0 z-0">
       <img
         src="/contact-bg.png"
         alt="Background Workspace"
         class="w-full h-full object-cover"
       />
-      <!-- Capa un poco más oscura para resaltar más el formulario -->
-      <div class="absolute inset-0 bg-black/60"></div>
+      <!-- Capa de color adaptativa (se adapta al color de fondo en opacidad) -->
+      <div class="absolute inset-0 bg-background/85 transition-colors duration-450"></div>
     </div>
 
-    <!-- Formulario: Muy Centrado, Rectangular Vertical (Estrecho) -->
+    <!-- Formulario: Muy Centrado, Estilo Glassmorphism con Esquinas Redondeadas -->
     <div
-      class="relative z-10 w-full max-w-[380px] p-8 md:p-10 rounded-[2rem] backdrop-blur-md bg-white/5 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.8)] flex flex-col justify-center reveal-on-scroll opacity-0 translate-y-10 transition-all duration-1000 ease-out"
+      class="relative z-10 w-full max-w-[380px] p-8 md:p-10 rounded-[2.5rem] border border-cardBorder backdrop-blur-md bg-cardBg/30 shadow-[0_12px_40px_rgba(0,0,0,0.4)] flex flex-col justify-center reveal-on-scroll opacity-0 translate-y-10 transition-all duration-1000 ease-out"
     >
       <div class="text-center mb-8">
-        <h2 class="text-3xl font-bold text-white mb-2">
+        <h2 class="text-3xl font-black uppercase tracking-[0.1em] text-textMain mb-2">
           Hablemos<span class="text-accent">.</span>
         </h2>
-        <p class="text-gray-300 text-sm font-light">Envíame un mensaje.</p>
+        <p class="text-textMuted text-xs font-light uppercase tracking-wider">Envíame un mensaje.</p>
       </div>
 
       <form class="flex flex-col gap-5">
@@ -37,7 +37,7 @@ import { ContactController } from "../controllers/ContactController.js";
             id="name"
             name="name"
             required
-            class="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-3.5 text-white focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm placeholder-gray-400"
+            class="w-full bg-background/40 border border-cardBorder rounded-xl px-4 py-3.5 text-textMain focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm placeholder-textMuted/60"
             placeholder="Nombre Completo"
           />
         </div>
@@ -48,7 +48,7 @@ import { ContactController } from "../controllers/ContactController.js";
             id="email"
             name="email"
             required
-            class="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-3.5 text-white focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm placeholder-gray-400"
+            class="w-full bg-background/40 border border-cardBorder rounded-xl px-4 py-3.5 text-textMain focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm placeholder-textMuted/60"
             placeholder="Correo Electrónico"
           />
         </div>
@@ -59,42 +59,49 @@ import { ContactController } from "../controllers/ContactController.js";
             name="message"
             rows="4"
             required
-            class="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-3.5 text-white focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm resize-none placeholder-gray-400"
+            class="w-full bg-background/40 border border-cardBorder rounded-xl px-4 py-3.5 text-textMain focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm resize-none placeholder-textMuted/60"
             placeholder="Mensaje..."></textarea>
         </div>
 
         <button
           type="submit"
-          class="w-full bg-accent text-background font-bold py-3.5 rounded-xl hover:bg-white hover:scale-[1.03] transition-all duration-300 text-sm mt-2 shadow-lg"
+          class="w-full bg-accent text-background font-bold py-3.5 rounded-xl hover:bg-textMain hover:scale-[1.03] transition-all duration-300 text-sm mt-2 shadow-lg cursor-pointer"
         >
-          Enviar
+          Enviar Mensaje
         </button>
       </form>
     </div>
+
+    <!-- Floating Star Sparkle -->
+    <div class="fixed bottom-8 right-8 z-30 pointer-events-none select-none animate-pulse">
+      <svg class="w-10 h-10 md:w-14 md:h-14 text-accent drop-shadow-[0_0_15px_rgba(212,175,55,0.6)]" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4L12 0Z" />
+      </svg>
+    </div>
   </main>
+</Layout>
 
-  <script>
-    const setupObserver = () => {
-      const observerOptions = {
-        root: null,
-        rootMargin: "0px",
-        threshold: 0.15,
-      };
-
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.remove("opacity-0", "translate-y-10");
-            entry.target.classList.add("opacity-100", "translate-y-0");
-            observer.unobserve(entry.target);
-          }
-        });
-      }, observerOptions);
-
-      const elements = document.querySelectorAll(".reveal-on-scroll");
-      elements.forEach((el) => observer.observe(el));
+<script>
+  const setupContactObserver = () => {
+    const observerOptions = {
+      root: null,
+      rootMargin: "0px",
+      threshold: 0.1,
     };
 
-    document.addEventListener("DOMContentLoaded", setupObserver);
-  </script>
-</Layout>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.remove("opacity-0", "translate-y-10");
+          entry.target.classList.add("opacity-100", "translate-y-0");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    const elements = document.querySelectorAll(".reveal-on-scroll");
+    elements.forEach((el) => observer.observe(el));
+  };
+
+  document.addEventListener("DOMContentLoaded", setupContactObserver);
+</script>

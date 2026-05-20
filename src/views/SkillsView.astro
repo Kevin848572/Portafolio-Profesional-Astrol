@@ -11,50 +11,70 @@ const footerData = ProfileController.getFooterData();
 <Layout title="Habilidades | Desarrollador Frontend">
   <Navbar />
   
-  <main class="pt-24 min-h-screen">
-    <section id="habilidades" class="py-20 px-6 max-w-4xl mx-auto reveal-on-scroll opacity-0 translate-y-10 transition-all duration-1000 ease-out">
-      <div class="text-center">
-        <h2 class="text-3xl md:text-5xl font-bold mb-8">Mis <span class="text-accent">Habilidades</span></h2>
-        <p class="text-gray-400 font-light text-lg mb-12">
-          Experto en el ecosistema moderno de desarrollo web, con un fuerte enfoque en rendimiento, accesibilidad y diseño pixel-perfect.
-        </p>
+  <main class="relative z-10 w-full pt-32 pb-24 min-h-screen">
+    <!-- Ambient glowing light -->
+    <div class="absolute top-1/3 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full bg-accent/10 blur-[100px] pointer-events-none z-0"></div>
+
+    <section id="habilidades" class="max-w-4xl mx-auto px-6 z-10 relative reveal-on-scroll opacity-0 translate-y-10 transition-all duration-1000 ease-out">
+      
+      <!-- Glassmorphism Card Container -->
+      <div class="w-full p-8 md:p-12 rounded-[2.5rem] border border-cardBorder backdrop-blur-md bg-cardBg/30 shadow-[0_12px_40px_rgba(0,0,0,0.4)]">
+        
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-5xl font-black uppercase tracking-[0.1em] text-textMain mb-4">
+            TECNOLOGÍAS & <span class="text-accent">SKILLS</span>
+          </h2>
+          <p class="text-sm text-textMuted font-light max-w-md mx-auto">
+            Stack técnico principal que utilizo día a día para maquetar, estructurar, animar y optimizar aplicaciones web.
+          </p>
+        </div>
+        
+        <!-- Skills Grid of Badges -->
         <div class="flex flex-wrap justify-center gap-4">
           {skills.map(skill => (
-            <div class="px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-textMain hover:bg-white/10 hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(212,175,55,0.15)] transition-all duration-300 cursor-default">
+            <div class="px-6 py-3.5 bg-background/50 border border-cardBorder rounded-2xl text-textMain font-medium hover:bg-cardBg hover:text-accent hover:border-accent/40 hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(212,175,55,0.15)] transition-all duration-300 cursor-default">
               {skill}
             </div>
           ))}
         </div>
+
       </div>
     </section>
+
+    <!-- Floating Star Sparkle -->
+    <div class="fixed bottom-8 right-8 z-30 pointer-events-none select-none animate-pulse">
+      <svg class="w-10 h-10 md:w-14 md:h-14 text-accent drop-shadow-[0_0_15px_rgba(212,175,55,0.6)]" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4L12 0Z" />
+      </svg>
+    </div>
   </main>
 
-  <footer class="border-t border-white/5 py-12 text-center text-gray-500 font-light text-sm mt-auto">
+  <footer class="border-t border-cardBorder py-12 text-center text-footerText font-light text-sm relative z-10 bg-background/80 backdrop-blur-sm">
     <p>&copy; {footerData.year} {footerData.copyText}</p>
   </footer>
+</Layout>
 
-  <script>
-    const setupObserver = () => {
-      const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.15
-      };
-
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.remove('opacity-0', 'translate-y-10');
-            entry.target.classList.add('opacity-100', 'translate-y-0');
-            observer.unobserve(entry.target);
-          }
-        });
-      }, observerOptions);
-
-      const elements = document.querySelectorAll('.reveal-on-scroll');
-      elements.forEach(el => observer.observe(el));
+<script>
+  const setupSkillsObserver = () => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
     };
 
-    document.addEventListener('DOMContentLoaded', setupObserver);
-  </script>
-</Layout>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.remove('opacity-0', 'translate-y-10');
+          entry.target.classList.add('opacity-100', 'translate-y-0');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    const elements = document.querySelectorAll('.reveal-on-scroll');
+    elements.forEach(el => observer.observe(el));
+  };
+
+  document.addEventListener('DOMContentLoaded', setupSkillsObserver);
+</script>

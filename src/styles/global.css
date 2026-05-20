@@ -2,6 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --background: #0b0b0b;
+  --textMain: #F3F4F6;
+  --textMuted: #9ca3af;
+  --accent: #D4AF37; /* Warm Gold */
+  --accent-rgb: 212, 175, 55;
+  --card-bg: #0e0e0e;
+  --card-border: rgba(255, 255, 255, 0.05);
+  --footer-text: #6b7280;
+  --navbar-bg: rgba(15, 15, 15, 0.4);
+  --input-bg: rgba(0, 0, 0, 0.4);
+  --glow-opacity: 0.15;
+}
+
+:root.light {
+  --background: #f7f6f2; /* Smooth warm off-white */
+  --textMain: #1c1c1a;   /* Deep charcoal */
+  --textMuted: #5c5c58;
+  --accent: #b08c24;     /* Darker gold for readability on light background */
+  --accent-rgb: 176, 140, 36;
+  --card-bg: #ffffff;
+  --card-border: rgba(0, 0, 0, 0.06);
+  --footer-text: #8b8b87;
+  --navbar-bg: rgba(255, 255, 255, 0.5);
+  --input-bg: rgba(255, 255, 255, 0.9);
+  --glow-opacity: 0.05;
+}
+
 @layer utilities {
   .mask-image-gradient {
     mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 80%);
@@ -10,9 +38,11 @@
 }
 
 body {
-  background-color: #0b0b0b;
-  color: #F3F4F6;
+  background-color: var(--background);
+  color: var(--textMain);
   overflow-x: hidden;
+  font-family: 'Inter', sans-serif;
+  transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Scrollbar minimalista */
@@ -20,12 +50,12 @@ body {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b0b0b;
+  background: var(--background);
 }
 ::-webkit-scrollbar-thumb {
-  background: #222;
+  background: var(--card-border);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #D4AF37;
+  background: var(--accent);
 }

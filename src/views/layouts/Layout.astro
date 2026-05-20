@@ -22,11 +22,21 @@ const { title, description = "Portafolio de desarrollo web premium y minimalista
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <title>{title}</title>
+    
+    <!-- Script inline para prevenir destellos y cargar el tema guardado -->
+    <script is:inline>
+      const theme = localStorage.getItem('theme') || 'dark';
+      if (theme === 'light') {
+        document.documentElement.classList.add('light');
+      } else {
+        document.documentElement.classList.remove('light');
+      }
+    </script>
   </head>
-  <body class="bg-background text-textMain antialiased relative min-h-screen">
-    <!-- Luces de neón difusas en el fondo -->
-    <div class="pointer-events-none fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-accent/5 blur-[120px] z-[-1]"></div>
-    <div class="pointer-events-none fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-accent/5 blur-[120px] z-[-1]"></div>
+  <body class="bg-background text-textMain antialiased relative min-h-screen transition-colors duration-300">
+    <!-- Luces de neón difusas en el fondo (acordes al tema) -->
+    <div class="pointer-events-none fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-accent/5 blur-[120px] z-[-1] opacity-70"></div>
+    <div class="pointer-events-none fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-accent/5 blur-[120px] z-[-1] opacity-70"></div>
     
     <slot />
   </body>

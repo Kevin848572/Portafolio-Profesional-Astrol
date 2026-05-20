@@ -4,9 +4,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#0b0b0b',
-        accent: '#D4AF37', // Oro sutil
-        textMain: '#F3F4F6', // Blanco roto
+        background: 'var(--background)',
+        accent: 'var(--accent)',
+        textMain: 'var(--textMain)',
+        textMuted: 'var(--textMuted)',
+        cardBg: 'var(--card-bg)',
+        cardBorder: 'var(--card-border)',
+        footerText: 'var(--footer-text)',
+        navbarBg: 'var(--navbar-bg)',
+        inputBg: 'var(--input-bg)',
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

@@ -2,45 +2,142 @@
 import Layout from './layouts/Layout.astro';
 import Navbar from './components/Navbar.astro';
 import Hero from './components/Hero.astro';
+import { ProjectController } from '../controllers/ProjectController.js';
+import { SkillController } from '../controllers/SkillController.js';
 import { ProfileController } from '../controllers/ProfileController.js';
 
+const projects = ProjectController.getFeaturedProjects();
 const footerData = ProfileController.getFooterData();
+
+// Stack de tecnologías destacadas estilo retro
+const mainTech = [
+  { name: "Astro", label: "Framework Principal" },
+  { name: "Tailwind CSS", label: "Estilos y Diseño" },
+  { name: "Framer Motion", label: "Animaciones" },
+  { name: "React", label: "Componentes Interactivos" },
+  { name: "TypeScript", label: "Tipado Estricto" }
+];
 ---
 
 <Layout title="Portafolio | Desarrollador Frontend">
   <Navbar />
   
-  <main>
+  <main class="relative z-10 w-full">
+    <!-- Hero con retrato espejo y tipografía PORTFOLIO con brillo -->
     <Hero />
+
+    <!-- Sección de Contenido: Selected Works + About Stack (Réplica del Diseño) -->
+    <section class="max-w-6xl mx-auto px-6 pb-24 z-20 relative reveal-on-scroll opacity-0 translate-y-10 transition-all duration-1000 ease-out">
+      
+      <!-- Contenedor Maestro: Caja con Esquinas Redondeadas, Glassmorphism y Borde Delgado -->
+      <div class="w-full p-8 md:p-12 rounded-[2.5rem] border border-cardBorder backdrop-blur-md bg-cardBg/30 shadow-[0_12px_40px_rgba(0,0,0,0.4)] transition-all">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          
+          <!-- Columnas 1 y 2: Selected Works -->
+          <div class="lg:col-span-2 flex flex-col gap-8">
+            <div class="flex items-center justify-between">
+              <h2 class="text-xl md:text-2xl font-bold uppercase tracking-[0.1em] text-accent">
+                SELECTED WORKS
+              </h2>
+              <a href="/proyectos" class="text-xs uppercase tracking-wider font-semibold text-textMuted hover:text-accent transition-colors">
+                View All &rarr;
+              </a>
+            </div>
+
+            <!-- Cuadrícula de Proyectos Destacados -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {projects.slice(0, 2).map((project, idx) => (
+                <div class="group relative rounded-2xl border border-cardBorder bg-background/50 p-6 flex flex-col justify-between h-64 overflow-hidden transition-all duration-500 hover:border-accent/40">
+                  <div class="flex flex-col gap-3 z-10">
+                    <span class="text-[10px] uppercase font-bold tracking-widest text-accent">0{idx + 1} / Project</span>
+                    <h3 class="text-xl font-bold text-textMain group-hover:text-accent transition-colors">{project.title}</h3>
+                    <p class="text-sm text-textMuted font-light leading-relaxed">{project.desc}</p>
+                  </div>
+                  
+                  <div class="flex gap-2 flex-wrap z-10 mt-4">
+                    {project.tags.map(tag => (
+                      <span class="text-[10px] font-semibold px-2.5 py-0.5 bg-cardBg border border-cardBorder rounded-full text-textMain transition-all">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <!-- Overlay de brillo al hacer Hover -->
+                  <div class="absolute inset-0 bg-gradient-to-t from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- Columna 3: About Stack -->
+          <div class="lg:col-span-1 flex flex-col gap-8">
+            <div>
+              <h2 class="text-xl md:text-2xl font-bold uppercase tracking-[0.1em] text-textMain">
+                ABOUT
+              </h2>
+            </div>
+
+            <!-- Lista de Tecnologías con Círculos de Iconos Dorados -->
+            <div class="flex flex-col gap-5">
+              {mainTech.map(tech => (
+                <div class="flex items-center gap-4 group">
+                  <!-- Círculo del Icono -->
+                  <div class="w-10 h-10 rounded-full bg-background border border-cardBorder flex items-center justify-center text-accent shadow-md transition-all group-hover:scale-105 group-hover:border-accent/40">
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
+                      <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                      <polyline points="2 17 12 22 22 17"></polyline>
+                      <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-semibold text-textMain group-hover:text-accent transition-colors">{tech.name}</h3>
+                    <span class="text-[10px] text-textMuted font-light">{tech.label}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Retro Golden Four-Pointed Star Sparkle (Fija Flotante Abajo a la Derecha) -->
+    <div class="fixed bottom-8 right-8 z-30 pointer-events-none select-none animate-pulse">
+      <svg class="w-10 h-10 md:w-14 md:h-14 text-accent drop-shadow-[0_0_15px_rgba(212,175,55,0.6)]" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4L12 0Z" />
+      </svg>
+    </div>
   </main>
 
-  <footer class="border-t border-white/5 py-12 text-center text-gray-500 font-light text-sm">
+  <!-- Footer con fondos adaptables -->
+  <footer class="border-t border-cardBorder py-12 text-center text-footerText font-light text-sm relative z-10 bg-background/80 backdrop-blur-sm transition-all">
     <p>&copy; {footerData.year} {footerData.copyText}</p>
   </footer>
+</Layout>
 
-  <!-- Script para animaciones de Scroll (Intersection Observer API) -->
-  <script>
-    const setupObserver = () => {
-      const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.15
-      };
-
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.remove('opacity-0', 'translate-y-10');
-            entry.target.classList.add('opacity-100', 'translate-y-0');
-            observer.unobserve(entry.target);
-          }
-        });
-      }, observerOptions);
-
-      const elements = document.querySelectorAll('.reveal-on-scroll');
-      elements.forEach(el => observer.observe(el));
+<script>
+  // Script para animar de forma fluida el contenedor al hacer scroll
+  const setupHomeObserver = () => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
     };
 
-    document.addEventListener('DOMContentLoaded', setupObserver);
-  </script>
-</Layout>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.remove('opacity-0', 'translate-y-10');
+          entry.target.classList.add('opacity-100', 'translate-y-0');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    const elements = document.querySelectorAll('.reveal-on-scroll');
+    elements.forEach(el => observer.observe(el));
+  };
+
+  document.addEventListener('DOMContentLoaded', setupHomeObserver);
+</script>
