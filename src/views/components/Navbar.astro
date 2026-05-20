@@ -40,6 +40,8 @@
     const sunIcon = document.getElementById('theme-sun');
     const moonIcon = document.getElementById('theme-moon');
 
+    if (!toggleBtn) return;
+
     const updateIcons = () => {
       const isLight = document.documentElement.classList.contains('light');
       if (isLight) {
@@ -55,7 +57,7 @@
     updateIcons();
 
     // Manejar Click
-    toggleBtn?.addEventListener('click', () => {
+    toggleBtn.addEventListener('click', () => {
       const isLight = document.documentElement.classList.contains('light');
       if (isLight) {
         document.documentElement.classList.remove('light');
@@ -68,6 +70,10 @@
     });
   };
 
-  // Ejecutar en la carga del documento
-  document.addEventListener('DOMContentLoaded', setupThemeToggle);
+  // En Astro, los scripts se cargan con 'defer' de forma nativa.
+  // El DOM ya está listo cuando el script corre. Lo ejecutamos de inmediato.
+  setupThemeToggle();
+
+  // También agregamos soporte para Astro View Transitions si se llegaran a activar
+  document.addEventListener('astro:after-swap', setupThemeToggle);
 </script>
