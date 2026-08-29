@@ -1,0 +1,6 @@
+.python-version text eol=lf
+api/.python-version text eol=lf
+Pipfile text eol=lf
+api/Pipfile text eol=lf
+pyproject.toml text eol=lf
+api/pyproject.toml text eol=lf
