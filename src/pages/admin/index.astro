@@ -1,0 +1,173 @@
+---
+import AdminLayout from '../../components/admin/AdminLayout.astro';
+import AdminSidebar from '../../components/admin/AdminSidebar.astro';
+import AdminNavbar from '../../components/admin/AdminNavbar.astro';
+---
+
+<AdminLayout title="Dashboard">
+  <AdminSidebar />
+  <AdminNavbar title="Dashboard" />
+
+  <main class="ml-[var(--sidebar-width)] pt-20 px-8 pb-12 min-h-screen transition-all duration-300">
+    <!-- Stats Grid -->
+    <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+      <div class="admin-card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--textMuted);">Proyectos</span>
+          <span class="material-icons-outlined text-[20px]" style="color: var(--accent);">folder</span>
+        </div>
+        <p id="stat-projects" class="text-3xl font-black" style="color: var(--textMain);">—</p>
+      </div>
+
+      <div class="admin-card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--textMuted);">Skills</span>
+          <span class="material-icons-outlined text-[20px]" style="color: var(--accent-cyan);">psychology</span>
+        </div>
+        <p id="stat-skills" class="text-3xl font-black" style="color: var(--textMain);">—</p>
+      </div>
+
+      <div class="admin-card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--textMuted);">Experiencias</span>
+          <span class="material-icons-outlined text-[20px]" style="color: var(--accent-emerald);">work</span>
+        </div>
+        <p id="stat-experiences" class="text-3xl font-black" style="color: var(--textMain);">—</p>
+      </div>
+
+      <div class="admin-card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--textMuted);">Destacados</span>
+          <span class="material-icons-outlined text-[20px]" style="color: var(--accent-amber);">star</span>
+        </div>
+        <p id="stat-featured" class="text-3xl font-black" style="color: var(--textMain);">—</p>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="admin-card p-6 mb-8">
+      <h2 class="text-lg font-bold mb-4" style="color: var(--textMain);">Acciones Rápidas</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <a href="/admin/proyectos" class="flex items-center gap-3 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02]"
+          style="background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(10px);">
+          <span class="material-icons-outlined text-[24px]" style="color: var(--accent);">add_circle</span>
+          <div>
+            <p class="font-semibold text-sm" style="color: var(--textMain);">Nuevo Proyecto</p>
+            <p class="text-xs" style="color: var(--textMuted);">Crear proyecto</p>
+          </div>
+        </a>
+
+        <a href="/admin/habilidades" class="flex items-center gap-3 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02]"
+          style="background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(10px);">
+          <span class="material-icons-outlined text-[24px]" style="color: var(--accent-cyan);">add_circle</span>
+          <div>
+            <p class="font-semibold text-sm" style="color: var(--textMain);">Nueva Skill</p>
+            <p class="text-xs" style="color: var(--textMuted);">Agregar habilidad</p>
+          </div>
+        </a>
+
+        <a href="/admin/experiencia" class="flex items-center gap-3 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02]"
+          style="background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(10px);">
+          <span class="material-icons-outlined text-[24px]" style="color: var(--accent-emerald);">add_circle</span>
+          <div>
+            <p class="font-semibold text-sm" style="color: var(--textMain);">Nueva Experiencia</p>
+            <p class="text-xs" style="color: var(--textMuted);">Agregar experiencia</p>
+          </div>
+        </a>
+
+        <a href="/admin/perfil" class="flex items-center gap-3 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02]"
+          style="background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(10px);">
+          <span class="material-icons-outlined text-[24px]" style="color: var(--accent-amber);">edit</span>
+          <div>
+            <p class="font-semibold text-sm" style="color: var(--textMain);">Editar Perfil</p>
+            <p class="text-xs" style="color: var(--textMuted);">Actualizar datos</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent Projects -->
+    <div class="admin-card p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold" style="color: var(--textMain);">Proyectos Recientes</h2>
+        <a href="/admin/proyectos" class="text-sm font-semibold hover:underline transition-colors duration-300" style="color: var(--accent);">Ver todos →</a>
+      </div>
+      <div id="recent-projects" class="space-y-3">
+        <p class="text-sm" style="color: var(--textMuted);">Cargando proyectos...</p>
+      </div>
+    </div>
+  </main>
+</AdminLayout>
+
+<script is:inline>
+  const API_URL = window.PUBLIC_API_URL || '';
+
+
+  function getToken() {
+    return localStorage.getItem('admin_token');
+  }
+
+  async function fetchAPI(endpoint) {
+    const token = getToken();
+    const res = await fetch(`${API_URL}${endpoint}`, {
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+    });
+    if (res.status === 401) {
+      localStorage.removeItem('admin_token');
+      window.location.href = '/admin/login';
+      return null;
+    }
+    return res.json();
+  }
+
+  async function loadDashboard() {
+    const token = getToken();
+    if (!token) {
+      window.location.href = '/admin/login';
+      return;
+    }
+
+    const [projects, skills, experiences] = await Promise.all([
+      fetchAPI('/api/projects'),
+      fetchAPI('/api/skills'),
+      fetchAPI('/api/experiences'),
+    ]);
+
+    if (projects) {
+      document.getElementById('stat-projects').textContent = projects.length;
+      document.getElementById('stat-featured').textContent = projects.filter(p => p.featured).length;
+
+      const recentContainer = document.getElementById('recent-projects');
+      if (projects.length === 0) {
+        recentContainer.innerHTML = '<p class="text-sm" style="color: var(--textMuted);">No hay proyectos aún</p>';
+      } else {
+        recentContainer.innerHTML = projects.slice(0, 5).map(p => `
+          <div class="flex items-center justify-between p-3 rounded-xl" style="background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(10px);">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(var(--accent-rgb), 0.1); border: 1px solid rgba(var(--accent-rgb), 0.2);">
+                <span class="material-icons-outlined text-[18px]" style="color: var(--accent);">folder</span>
+              </div>
+              <div>
+                <p class="font-semibold text-sm" style="color: var(--textMain);">${p.title}</p>
+                <p class="text-xs" style="color: var(--textMuted);">${p.category}</p>
+              </div>
+            </div>
+            ${p.featured ? '<span class="text-xs font-bold px-2 py-1 rounded-full" style="background: rgba(var(--accent-rgb), 0.15); color: var(--accent); border: 1px solid rgba(var(--accent-rgb), 0.3);">Destacado</span>' : ''}
+          </div>
+        `).join('');
+      }
+    }
+
+    if (skills) {
+      const totalSkills = skills.reduce((acc, cat) => acc + cat.skills.length, 0);
+      document.getElementById('stat-skills').textContent = totalSkills;
+    }
+
+    if (experiences) {
+      document.getElementById('stat-experiences').textContent = experiences.length;
+    }
+  }
+
+  loadDashboard();
+  document.addEventListener('astro:page-load', loadDashboard);
+</script>

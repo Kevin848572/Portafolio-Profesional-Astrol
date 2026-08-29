@@ -1,0 +1,263 @@
+---
+import AdminLayout from '../../components/admin/AdminLayout.astro';
+import AdminSidebar from '../../components/admin/AdminSidebar.astro';
+import AdminNavbar from '../../components/admin/AdminNavbar.astro';
+---
+
+<AdminLayout title="Proyectos">
+  <AdminSidebar />
+  <AdminNavbar title="Gestión de Proyectos" />
+
+  <main class="ml-[var(--sidebar-width)] pt-20 px-8 pb-12 min-h-screen transition-all duration-300">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+      <p class="text-sm" style="color: var(--textMuted);">Administra tus proyectos del portafolio</p>
+      <button id="btn-new-project" class="btn-primary flex items-center gap-2">
+        <span class="material-icons-outlined text-[18px]">add</span>
+        Nuevo Proyecto
+      </button>
+    </div>
+
+    <!-- Projects List -->
+    <div id="projects-list" class="space-y-3">
+      <p class="text-sm" style="color: var(--textMuted);">Cargando proyectos...</p>
+    </div>
+
+    <!-- Modal Form -->
+    <div id="project-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+      style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
+      <div class="admin-card w-full max-w-2xl max-h-[90vh] overflow-y-auto no-scrollbar p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 id="modal-title" class="text-lg font-bold" style="color: var(--textMain);">Nuevo Proyecto</h3>
+          <button id="btn-close-modal" class="p-2 rounded-lg hover:opacity-80" style="color: var(--textMuted);">
+            <span class="material-icons-outlined">close</span>
+          </button>
+        </div>
+
+        <form id="project-form" class="space-y-4">
+          <input type="hidden" id="project-id" />
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">Título *</label>
+              <input type="text" id="p-title" class="admin-input" required placeholder="Mi Proyecto" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">Slug *</label>
+              <input type="text" id="p-slug" class="admin-input" required placeholder="mi-proyecto" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">Descripción Corta *</label>
+            <input type="text" id="p-description" class="admin-input" required placeholder="Una breve descripción" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">Descripción Larga</label>
+            <textarea id="p-long-description" class="admin-input" rows="3" placeholder="Descripción detallada del proyecto"></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">Categoría *</label>
+              <select id="p-category" class="admin-input" required>
+                <option value="Frontend">Frontend</option>
+                <option value="Fullstack">Fullstack</option>
+                <option value="Sistemas">Sistemas</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">Tags (separados por coma)</label>
+              <input type="text" id="p-tags" class="admin-input" placeholder="React, Tailwind CSS, TypeScript" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">URL de Imagen</label>
+            <input type="url" id="p-image" class="admin-input" placeholder="https://..." />
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">URL Demo</label>
+              <input type="url" id="p-demo-url" class="admin-input" placeholder="https://..." />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">URL GitHub</label>
+              <input type="url" id="p-github-url" class="admin-input" placeholder="https://..." />
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <input type="checkbox" id="p-featured" class="w-4 h-4 accent-amber-500" />
+            <label for="p-featured" class="text-sm font-medium" style="color: var(--textMain);">Proyecto destacado</label>
+          </div>
+
+          <div id="form-error" class="hidden text-sm font-medium px-4 py-3 rounded-xl"
+            style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2);">
+          </div>
+
+          <div class="flex justify-end gap-3 pt-2">
+            <button type="button" id="btn-cancel" class="btn-secondary">Cancelar</button>
+            <button type="submit" id="btn-save" class="btn-primary">Guardar Proyecto</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</AdminLayout>
+
+<script is:inline>
+  const API_URL = window.PUBLIC_API_URL || '';
+
+  let editingId = null;
+
+  function getToken() { return localStorage.getItem('admin_token'); }
+
+  async function fetchAPI(endpoint, options = {}) {
+    const token = getToken();
+    const res = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        ...options.headers,
+      },
+    });
+    if (res.status === 401) {
+      localStorage.removeItem('admin_token');
+      window.location.href = '/admin/login';
+      return null;
+    }
+    return res;
+  }
+
+  function showModal(project = null) {
+    const modal = document.getElementById('project-modal');
+    const title = document.getElementById('modal-title');
+    if (project) {
+      editingId = project.id;
+      title.textContent = 'Editar Proyecto';
+      document.getElementById('project-id').value = project.id;
+      document.getElementById('p-title').value = project.title;
+      document.getElementById('p-slug').value = project.slug;
+      document.getElementById('p-description').value = project.description;
+      document.getElementById('p-long-description').value = project.long_description || '';
+      document.getElementById('p-category').value = project.category;
+      document.getElementById('p-tags').value = project.tags.join(', ');
+      document.getElementById('p-image').value = project.image || '';
+      document.getElementById('p-demo-url').value = project.demo_url || '';
+      document.getElementById('p-github-url').value = project.github_url || '';
+      document.getElementById('p-featured').checked = project.featured;
+    } else {
+      editingId = null;
+      title.textContent = 'Nuevo Proyecto';
+      document.getElementById('project-form').reset();
+    }
+    document.getElementById('form-error').style.display = 'none';
+    modal.classList.remove('hidden');
+  }
+
+  function hideModal() {
+    document.getElementById('project-modal').classList.add('hidden');
+    editingId = null;
+  }
+
+  async function loadProjects() {
+    const res = await fetchAPI('/api/projects');
+    if (!res) return;
+    const projects = await res.json();
+    const container = document.getElementById('projects-list');
+
+    if (projects.length === 0) {
+      container.innerHTML = '<p class="text-sm" style="color: var(--textMuted);">No hay proyectos aún</p>';
+      return;
+    }
+
+    container.innerHTML = projects.map(p => `
+      <div class="admin-card p-4 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden" style="background: var(--card-bg); border: 1px solid var(--card-border);">
+            ${p.image ? `<img src="${p.image}" alt="" class="w-full h-full object-cover" />` : '<span class="material-icons-outlined" style="color: var(--accent);">image</span>'}
+          </div>
+          <div>
+            <p class="font-semibold text-sm" style="color: var(--textMain);">${p.title}</p>
+            <p class="text-xs" style="color: var(--textMuted);">${p.category} ${p.featured ? '· Destacado' : ''}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick='editProject(${JSON.stringify(p).replace(/'/g, "&#39;")})' class="btn-edit">Editar</button>
+          <button onclick="deleteProject(${p.id})" class="btn-danger">Eliminar</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  window.editProject = function(project) {
+    showModal(project);
+  };
+
+  window.deleteProject = async function(id) {
+    if (!confirm('¿Eliminar este proyecto?')) return;
+    const res = await fetchAPI(`/api/projects/${id}`, { method: 'DELETE' });
+    if (res && res.ok) loadProjects();
+  };
+
+  document.getElementById('btn-new-project')?.addEventListener('click', () => showModal());
+  document.getElementById('btn-close-modal')?.addEventListener('click', hideModal);
+  document.getElementById('btn-cancel')?.addEventListener('click', hideModal);
+
+  document.getElementById('project-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorMsg = document.getElementById('form-error');
+    errorMsg.style.display = 'none';
+
+    const tags = document.getElementById('p-tags').value.split(',').map(t => t.trim()).filter(Boolean);
+    const body = {
+      slug: document.getElementById('p-slug').value,
+      title: document.getElementById('p-title').value,
+      description: document.getElementById('p-description').value,
+      long_description: document.getElementById('p-long-description').value || null,
+      category: document.getElementById('p-category').value,
+      tags,
+      image: document.getElementById('p-image').value || null,
+      demo_url: document.getElementById('p-demo-url').value || null,
+      github_url: document.getElementById('p-github-url').value || null,
+      featured: document.getElementById('p-featured').checked,
+    };
+
+    try {
+      let res;
+      if (editingId) {
+        res = await fetchAPI(`/api/projects/${editingId}`, {
+          method: 'PUT',
+          body: JSON.stringify(body),
+        });
+      } else {
+        res = await fetchAPI('/api/projects', {
+          method: 'POST',
+          body: JSON.stringify(body),
+        });
+      }
+
+      if (res && res.ok) {
+        hideModal();
+        loadProjects();
+      } else {
+        const err = await res.json().catch(() => ({ detail: 'Error al guardar' }));
+        errorMsg.textContent = err.detail || 'Error al guardar';
+        errorMsg.style.display = 'block';
+      }
+    } catch (error) {
+      errorMsg.textContent = 'Error de conexión';
+      errorMsg.style.display = 'block';
+    }
+  });
+
+  document.addEventListener('astro:page-load', () => {
+    if (getToken()) loadProjects();
+  });
+
+  loadProjects();
+</script>

@@ -1,0 +1,483 @@
+---
+import { ProjectModel } from '../../models/ProjectModel.js';
+
+const projects = ProjectModel.getProjects();
+
+const kpiStats = [
+  {
+    title: "Proyectos en Producción",
+    value: "12+",
+    change: "+4 este año",
+    icon: "rocket_launch",
+    colorClass: "stat-card-blue",
+    iconBg: "bg-blue-500/15 text-blue-400 border border-blue-500/30",
+    glowColor: "rgba(59, 130, 246, 0.4)"
+  },
+  {
+    title: "Índice Lighthouse (Perf)",
+    value: "99/100",
+    change: "Optimizado 120fps",
+    icon: "speed",
+    colorClass: "stat-card-green",
+    iconBg: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30",
+    glowColor: "rgba(16, 185, 129, 0.4)"
+  },
+  {
+    title: "Stack & Tecnologías",
+    value: "14+",
+    change: "Astro, React, TS, Tailwind",
+    icon: "layers",
+    colorClass: "stat-card-cyan",
+    iconBg: "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30",
+    glowColor: "rgba(6, 182, 212, 0.4)"
+  },
+  {
+    title: "Commits & Entregas",
+    value: "520+",
+    change: "Alta productividad",
+    icon: "terminal",
+    colorClass: "stat-card-purple",
+    iconBg: "bg-indigo-500/15 text-indigo-400 border border-indigo-500/30",
+    glowColor: "rgba(99, 102, 241, 0.4)"
+  },
+  {
+    title: "Satisfacción UI/UX",
+    value: "100%",
+    change: "Pixel Perfect Design",
+    icon: "verified",
+    colorClass: "stat-card-amber",
+    iconBg: "bg-amber-500/15 text-amber-400 border border-amber-500/30",
+    glowColor: "rgba(245, 158, 11, 0.4)"
+  }
+];
+
+const statusMap: Record<string, { label: string; badgeClass: string }> = {
+  "Sistemas": { label: "LISTO // SISTEMAS", badgeClass: "badge-ready" },
+  "Frontend": { label: "EN PRODUCCIÓN", badgeClass: "badge-production" },
+  "Fullstack": { label: "OPTIMIZADO", badgeClass: "badge-optimized" }
+};
+---
+
+<section id="panel-control" class="w-full relative py-12 md:py-20 select-none">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    
+    <!-- Encabezado del Panel de Control -->
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl mb-8 relative overflow-hidden">
+      <div class="absolute -top-12 -right-12 w-64 h-64 rounded-full bg-blue-500/20 blur-3xl pointer-events-none"></div>
+
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
+        <div>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-400 animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.8)]"></span>
+            <span class="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">SISTEMA ACTIVO // CONTROL CENTER</span>
+            <span class="px-2 py-0.5 rounded-full bg-cardBg border border-cardBorder text-[10px] font-mono text-textMuted">v2.4.0</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-[0.05em] text-textMain">
+            PANEL DE CONTROL <span class="text-blue-500">& ANALÍTICA</span>
+          </h2>
+          <p class="text-xs sm:text-sm text-textMuted font-light mt-1 max-w-xl">
+            Métricas operativas de desarrollo, arquitectura de software, rendimiento de aplicaciones y telemetría de proyectos.
+          </p>
+        </div>
+
+        <!-- Indicador de Tiempo Real y Acciones Rápidas -->
+        <div class="flex items-center gap-3">
+          <div class="px-4 py-2 rounded-2xl bg-background/60 border border-cardBorder flex items-center gap-2.5 text-xs font-mono">
+            <span class="material-icons-outlined text-sm text-cyan-400 animate-spin" style="animation-duration: 6s;">refresh</span>
+            <span class="text-textMuted">UPTIME:</span>
+            <span class="font-bold text-textMain">99.9%</span>
+          </div>
+          <a 
+            href="/proyectos" 
+            class="px-4 py-2 rounded-2xl bg-blue-600 text-white font-bold text-xs uppercase tracking-wider hover:bg-blue-500 hover:scale-105 transition-all shadow-[0_0_20px_rgba(37,99,235,0.4)] flex items-center gap-1.5"
+          >
+            <span>Ver Todos</span>
+            <span class="material-icons-outlined text-sm">arrow_forward</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- TARJETAS DE ESTADÍSTICAS KPI -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+      {kpiStats.map((kpi) => (
+        <div class="dashboard-stat-card group">
+          <div class="flex flex-col justify-between h-full gap-2">
+            <div>
+              <span class="block text-[11px] font-bold uppercase tracking-wider text-textMuted line-clamp-1">{kpi.title}</span>
+              <span class="block text-2xl sm:text-3xl font-black text-textMain mt-1 group-hover:text-blue-400 transition-colors">{kpi.value}</span>
+            </div>
+            <span class="text-[10px] font-mono text-textMuted/80">{kpi.change}</span>
+          </div>
+          <div class={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${kpi.iconBg} shadow-inner group-hover:scale-110 transition-transform`}>
+            <span class="material-icons-outlined text-2xl">{kpi.icon}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- SECCIÓN DE GRÁFICOS ANALÍTICOS ESTÉTICOS (Chart.js) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+      
+      <!-- Gráfico 1: Actividad y Despliegues Mensuales (8 Cols) -->
+      <div class="lg:col-span-8 glass-panel p-5 sm:p-7 rounded-3xl flex flex-col justify-between">
+        <div class="flex items-center justify-between pb-4 border-b border-cardBorder mb-4">
+          <div class="flex items-center gap-2.5">
+            <span class="material-icons-outlined text-blue-400 text-xl">query_stats</span>
+            <div>
+              <h3 class="text-sm sm:text-base font-bold text-textMain uppercase tracking-wide">Tendencia de Actividad & Commits Mensuales</h3>
+              <p class="text-[11px] text-textMuted font-light">Volumen de desarrollo, nuevas funcionalidades y optimizaciones por mes</p>
+            </div>
+          </div>
+          <div class="hidden sm:flex items-center gap-4 text-xs font-mono">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+              <span class="text-textMuted">Features & Commits</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+              <span class="text-textMuted">Optimizaciones UI</span>
+            </div>
+          </div>
+        </div>
+        <div class="w-full h-64 sm:h-72 relative">
+          <canvas id="graficoActividadMensual"></canvas>
+        </div>
+      </div>
+
+      <!-- Gráfico 2: Distribución de Arquitectura (4 Cols) -->
+      <div class="lg:col-span-4 glass-panel p-5 sm:p-7 rounded-3xl flex flex-col justify-between">
+        <div class="flex items-center justify-between pb-4 border-b border-cardBorder mb-4">
+          <div class="flex items-center gap-2.5">
+            <span class="material-icons-outlined text-cyan-400 text-xl">pie_chart</span>
+            <div>
+              <h3 class="text-sm sm:text-base font-bold text-textMain uppercase tracking-wide">Arquitectura</h3>
+              <p class="text-[11px] text-textMuted font-light">Distribución de proyectos</p>
+            </div>
+          </div>
+        </div>
+        <div class="w-full h-64 sm:h-72 relative flex items-center justify-center">
+          <canvas id="graficoDistribucionProyectos"></canvas>
+        </div>
+      </div>
+
+      <!-- Gráfico 3: Dominio de Stack Tecnológico - Radar Chart (6 Cols) -->
+      <div class="lg:col-span-6 glass-panel p-5 sm:p-7 rounded-3xl flex flex-col justify-between">
+        <div class="flex items-center justify-between pb-4 border-b border-cardBorder mb-4">
+          <div class="flex items-center gap-2.5">
+            <span class="material-icons-outlined text-indigo-400 text-xl">radar</span>
+            <div>
+              <h3 class="text-sm sm:text-base font-bold text-textMain uppercase tracking-wide">Radar de Competencias & Stack</h3>
+              <p class="text-[11px] text-textMuted font-light">Nivel de destreza técnica en tecnologías clave</p>
+            </div>
+          </div>
+          <span class="px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-[10px] font-mono text-indigo-300 font-bold">RADAR 360°</span>
+        </div>
+        <div class="w-full h-72 sm:h-80 relative flex items-center justify-center">
+          <canvas id="graficoStackRadar"></canvas>
+        </div>
+      </div>
+
+      <!-- Gráfico 4: Auditoría de Calidad Web & Core Web Vitals (6 Cols) -->
+      <div class="lg:col-span-6 glass-panel p-5 sm:p-7 rounded-3xl flex flex-col justify-between">
+        <div class="flex items-center justify-between pb-4 border-b border-cardBorder mb-4">
+          <div class="flex items-center gap-2.5">
+            <span class="material-icons-outlined text-emerald-400 text-xl">speed</span>
+            <div>
+              <h3 class="text-sm sm:text-base font-bold text-textMain uppercase tracking-wide">Auditoría Lighthouse & Calidad</h3>
+              <p class="text-[11px] text-textMuted font-light">Puntajes de auditoría de rendimiento en producción</p>
+            </div>
+          </div>
+          <span class="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-mono text-emerald-300 font-bold">100% AUDIT</span>
+        </div>
+        <div class="w-full h-72 sm:h-80 relative flex items-center justify-center">
+          <canvas id="graficoAuditoriaPerformance"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MATRIZ DE CONTROL Y MONITOREO DE PROYECTOS -->
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-cardBorder mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+            <span class="material-icons-outlined">table_chart</span>
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-bold text-textMain uppercase tracking-wide">Matriz de Sistemas & Proyectos</h3>
+            <p class="text-xs text-textMuted font-light">Registro centralizado de plataformas, repositorios y estado de despliegue</p>
+          </div>
+        </div>
+        <div class="text-xs font-mono text-textMuted">
+          Total de registros: <span class="font-bold text-blue-400">{projects.length}</span>
+        </div>
+      </div>
+
+      <!-- Tabla Responsiva de Proyectos -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead>
+            <tr class="border-b border-cardBorder text-[10px] sm:text-xs font-mono uppercase text-textMuted">
+              <th class="pb-3 pr-4"># ID</th>
+              <th class="pb-3 px-4">Proyecto / Sistema</th>
+              <th class="pb-3 px-4">Categoría</th>
+              <th class="pb-3 px-4">Stack</th>
+              <th class="pb-3 px-4">Estado</th>
+              <th class="pb-3 pl-4 text-right">Acción</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-cardBorder/50">
+            {projects.slice(0, 6).map((proj, idx) => {
+              const statusInfo = statusMap[proj.category] || { label: "LISTO", badgeClass: "badge-ready" };
+              return (
+                <tr class="hover:bg-white/[0.03] transition-colors group">
+                  <td class="py-3.5 pr-4 font-mono text-blue-400 font-bold text-xs">
+                    0{idx + 1}
+                  </td>
+                  <td class="py-3.5 px-4 font-bold text-textMain group-hover:text-blue-400 transition-colors">
+                    <div class="flex items-center gap-2">
+                      <span>{proj.title}</span>
+                    </div>
+                  </td>
+                  <td class="py-3.5 px-4">
+                    <span class="px-2.5 py-1 rounded-lg bg-cardBg border border-cardBorder text-[11px] text-textMuted font-mono">
+                      {proj.category}
+                    </span>
+                  </td>
+                  <td class="py-3.5 px-4">
+                    <div class="flex gap-1 flex-wrap">
+                      {proj.tags.slice(0, 2).map((t) => (
+                        <span class="text-[10px] px-2 py-0.5 rounded-md bg-background/80 border border-cardBorder text-textMuted">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td class="py-3.5 px-4">
+                    <span class={`status-badge ${statusInfo.badgeClass}`}>
+                      <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                      {statusInfo.label}
+                    </span>
+                  </td>
+                  <td class="py-3.5 pl-4 text-right">
+                    <a 
+                      href={proj.githubUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      class="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-cardBg border border-cardBorder hover:border-blue-500/50 hover:text-blue-400 text-xs font-semibold text-textMuted transition-all"
+                    >
+                      <span>GitHub</span>
+                      <span class="material-icons-outlined text-xs">open_in_new</span>
+                    </a>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SCRIPT DE RENDERIZADO ROBUSTO DE GRÁFICOS (Chart.js) -->
+<script is:inline>
+  function initChartsWithRetry(attempts = 0) {
+    if (typeof Chart === 'undefined') {
+      if (attempts < 20) {
+        setTimeout(() => initChartsWithRetry(attempts + 1), 100);
+      }
+      return;
+    }
+
+    const isLight = document.documentElement.classList.contains('light');
+    const textColor = isLight ? '#475569' : '#94a3b8';
+    const gridColor = isLight ? 'rgba(15, 23, 42, 0.08)' : 'rgba(255, 255, 255, 0.06)';
+
+    // 1. Gráfico de Actividad Mensual
+    const ctxActividad = document.getElementById('graficoActividadMensual');
+    if (ctxActividad) {
+      const existing = Chart.getChart(ctxActividad);
+      if (existing) existing.destroy();
+
+      new Chart(ctxActividad, {
+        type: 'line',
+        data: {
+          labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+          datasets: [
+            {
+              label: 'Commits & Features',
+              data: [32, 45, 52, 48, 65, 78, 72, 85, 80, 94, 90, 105],
+              borderColor: '#2563eb',
+              backgroundColor: 'rgba(37, 99, 235, 0.22)',
+              borderWidth: 3,
+              tension: 0.35,
+              fill: true,
+              pointBackgroundColor: '#3b82f6',
+              pointRadius: 4,
+              pointHoverRadius: 7
+            },
+            {
+              label: 'Optimizaciones UI',
+              data: [18, 24, 30, 26, 38, 48, 42, 56, 50, 64, 60, 72],
+              borderColor: '#06b6d4',
+              backgroundColor: 'rgba(6, 182, 212, 0.12)',
+              borderWidth: 2.5,
+              tension: 0.35,
+              fill: true,
+              pointBackgroundColor: '#06b6d4',
+              pointRadius: 4,
+              pointHoverRadius: 7
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              grid: { color: gridColor },
+              ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 11 } }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: gridColor },
+              ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
+    // 2. Gráfico de Distribución de Proyectos (Doughnut)
+    const ctxDistribucion = document.getElementById('graficoDistribucionProyectos');
+    if (ctxDistribucion) {
+      const existing = Chart.getChart(ctxDistribucion);
+      if (existing) existing.destroy();
+
+      new Chart(ctxDistribucion, {
+        type: 'doughnut',
+        data: {
+          labels: ['Frontend & UI', 'Sistemas', 'Fullstack', 'APIs & Tools'],
+          datasets: [{
+            data: [45, 25, 20, 10],
+            backgroundColor: ['#2563eb', '#06b6d4', '#6366f1', '#10b981'],
+            borderColor: isLight ? '#ffffff' : '#060c1e',
+            borderWidth: 3,
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '70%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: textColor,
+                boxWidth: 10,
+                font: { family: 'Inter', size: 11, weight: 'bold' },
+                padding: 12
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 3. Gráfico Radar de Competencias
+    const ctxRadar = document.getElementById('graficoStackRadar');
+    if (ctxRadar) {
+      const existing = Chart.getChart(ctxRadar);
+      if (existing) existing.destroy();
+
+      new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+          labels: ['Astro', 'React', 'JavaScript ES6+', 'Tailwind CSS', 'TypeScript', 'Responsive / UI', 'Git & CI/CD', 'Rendimiento'],
+          datasets: [{
+            label: 'Nivel de Dominio (%)',
+            data: [98, 92, 95, 98, 88, 96, 92, 95],
+            backgroundColor: 'rgba(99, 102, 241, 0.28)',
+            borderColor: '#6366f1',
+            pointBackgroundColor: '#818cf8',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#6366f1',
+            borderWidth: 2.5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            r: {
+              angleLines: { color: gridColor },
+              grid: { color: gridColor },
+              pointLabels: {
+                color: textColor,
+                font: { family: 'Inter', size: 11, weight: '600' }
+              },
+              ticks: { display: false, min: 0, max: 100 }
+            }
+          }
+        }
+      });
+    }
+
+    // 4. Gráfico de Auditoría Lighthouse
+    const ctxPerformance = document.getElementById('graficoAuditoriaPerformance');
+    if (ctxPerformance) {
+      const existing = Chart.getChart(ctxPerformance);
+      if (existing) existing.destroy();
+
+      new Chart(ctxPerformance, {
+        type: 'bar',
+        data: {
+          labels: ['Rendimiento (120fps)', 'Accesibilidad (A11y)', 'Mejores Prácticas', 'SEO Técnico', 'PWA & Responsive'],
+          datasets: [{
+            label: 'Score Lighthouse',
+            data: [99, 100, 98, 100, 100],
+            backgroundColor: [
+              'rgba(16, 185, 129, 0.85)',
+              'rgba(6, 182, 212, 0.85)',
+              'rgba(37, 99, 235, 0.85)',
+              'rgba(99, 102, 241, 0.85)',
+              'rgba(244, 63, 94, 0.85)'
+            ],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: {
+              beginAtZero: true,
+              max: 100,
+              grid: { color: gridColor },
+              ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 11 } }
+            },
+            y: {
+              grid: { display: false },
+              ticks: { color: textColor, font: { family: 'Inter', size: 11, weight: '600' } }
+            }
+          }
+        }
+      });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => initChartsWithRetry());
+  document.addEventListener('astro:page-load', () => initChartsWithRetry());
+  window.addEventListener('themechange', () => initChartsWithRetry());
+</script>

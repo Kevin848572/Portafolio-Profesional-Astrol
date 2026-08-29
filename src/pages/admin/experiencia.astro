@@ -1,0 +1,224 @@
+---
+import AdminLayout from '../../components/admin/AdminLayout.astro';
+import AdminSidebar from '../../components/admin/AdminSidebar.astro';
+import AdminNavbar from '../../components/admin/AdminNavbar.astro';
+---
+
+<AdminLayout title="Experiencia">
+  <AdminSidebar />
+  <AdminNavbar title="Gestión de Experiencia" />
+
+  <main class="ml-[var(--sidebar-width)] pt-20 px-8 pb-12 min-h-screen transition-all duration-300">
+    <div class="flex items-center justify-between mb-6">
+      <p class="text-sm" style="color: var(--textMuted);">Administra tu línea de tiempo profesional</p>
+      <button id="btn-new-experience" class="btn-primary flex items-center gap-2">
+        <span class="material-icons-outlined text-[18px]">add</span>
+        Nueva Experiencia
+      </button>
+    </div>
+
+    <div id="experiences-list" class="space-y-4">
+      <p class="text-sm" style="color: var(--textMuted);">Cargando experiencias...</p>
+    </div>
+
+    <!-- Modal -->
+    <div id="exp-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+      style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
+      <div class="admin-card w-full max-w-2xl max-h-[90vh] overflow-y-auto no-scrollbar p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 id="exp-modal-title" class="text-lg font-bold" style="color: var(--textMain);">Nueva Experiencia</h3>
+          <button id="btn-close-exp-modal" class="p-2 rounded-lg hover:opacity-80" style="color: var(--textMuted);">
+            <span class="material-icons-outlined">close</span>
+          </button>
+        </div>
+        <form id="exp-form" class="space-y-4">
+          <input type="hidden" id="exp-id" />
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">Año *</label>
+              <input type="text" id="e-year" class="admin-input" required placeholder="2026" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">Periodo *</label>
+              <input type="text" id="e-period" class="admin-input" required placeholder="2025 — Actualidad" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">Cargo *</label>
+              <input type="text" id="e-role" class="admin-input" required placeholder="Frontend Developer" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">Empresa *</label>
+              <input type="text" id="e-company" class="admin-input" required placeholder="Empresa" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">Descripción *</label>
+            <textarea id="e-description" class="admin-input" rows="2" required placeholder="Descripción del rol"></textarea>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">Logros (uno por línea)</label>
+            <textarea id="e-achievements" class="admin-input" rows="4" placeholder="Logro 1&#10;Logro 2&#10;Logro 3"></textarea>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">Tags (separados por coma)</label>
+            <input type="text" id="e-tags" class="admin-input" placeholder="React, TypeScript, Tailwind CSS" />
+          </div>
+          <div id="exp-form-error" class="hidden text-sm font-medium px-4 py-3 rounded-xl"
+            style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2);"></div>
+          <div class="flex justify-end gap-3 pt-2">
+            <button type="button" id="btn-cancel-exp" class="btn-secondary">Cancelar</button>
+            <button type="submit" class="btn-primary">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</AdminLayout>
+
+<script is:inline>
+  const API_URL = window.PUBLIC_API_URL || '';
+
+  let editingId = null;
+
+  function getToken() { return localStorage.getItem('admin_token'); }
+
+  async function fetchAPI(endpoint, options = {}) {
+    const token = getToken();
+    const res = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        ...options.headers,
+      },
+    });
+    if (res.status === 401) {
+      localStorage.removeItem('admin_token');
+      window.location.href = '/admin/login';
+      return null;
+    }
+    return res;
+  }
+
+  function showModal(exp = null) {
+    const modal = document.getElementById('exp-modal');
+    const title = document.getElementById('exp-modal-title');
+    if (exp) {
+      editingId = exp.id;
+      title.textContent = 'Editar Experiencia';
+      document.getElementById('exp-id').value = exp.id;
+      document.getElementById('e-year').value = exp.year;
+      document.getElementById('e-period').value = exp.period;
+      document.getElementById('e-role').value = exp.role;
+      document.getElementById('e-company').value = exp.company;
+      document.getElementById('e-description').value = exp.description;
+      document.getElementById('e-achievements').value = exp.achievements.map(a => a.text).join('\n');
+      document.getElementById('e-tags').value = exp.tags.join(', ');
+    } else {
+      editingId = null;
+      title.textContent = 'Nueva Experiencia';
+      document.getElementById('exp-form').reset();
+    }
+    document.getElementById('exp-form-error').style.display = 'none';
+    modal.classList.remove('hidden');
+  }
+
+  window.editExperience = function(exp) { showModal(exp); };
+
+  window.deleteExperience = async function(id) {
+    if (!confirm('¿Eliminar esta experiencia?')) return;
+    const res = await fetchAPI(`/api/experiences/${id}`, { method: 'DELETE' });
+    if (res && res.ok) loadExperiences();
+  };
+
+  document.getElementById('btn-new-experience')?.addEventListener('click', () => showModal());
+  document.getElementById('btn-close-exp-modal')?.addEventListener('click', () => document.getElementById('exp-modal').classList.add('hidden'));
+  document.getElementById('btn-cancel-exp')?.addEventListener('click', () => document.getElementById('exp-modal').classList.add('hidden'));
+
+  async function loadExperiences() {
+    const res = await fetchAPI('/api/experiences');
+    if (!res) return;
+    const experiences = await res.json();
+    const container = document.getElementById('experiences-list');
+
+    if (experiences.length === 0) {
+      container.innerHTML = '<p class="text-sm" style="color: var(--textMuted);">No hay experiencias aún</p>';
+      return;
+    }
+
+    container.innerHTML = experiences.map(exp => `
+      <div class="admin-card p-5">
+        <div class="flex items-start justify-between">
+          <div class="flex gap-4">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(245, 158, 11, 0.1);">
+              <span class="font-bold text-sm" style="color: var(--accent);">${exp.year}</span>
+            </div>
+            <div>
+              <p class="font-bold text-sm" style="color: var(--textMain);">${exp.role}</p>
+              <p class="text-xs mb-1" style="color: var(--accent);">${exp.company}</p>
+              <p class="text-xs" style="color: var(--textMuted);">${exp.period}</p>
+              <p class="text-sm mt-2" style="color: var(--textMuted);">${exp.description}</p>
+              ${exp.achievements.length > 0 ? `
+                <ul class="mt-2 space-y-1">
+                  ${exp.achievements.map(a => `<li class="text-xs flex items-start gap-1.5" style="color: var(--textMuted);"><span style="color: var(--accent);">•</span> ${a.text}</li>`).join('')}
+                </ul>
+              ` : ''}
+              <div class="flex gap-1.5 mt-2 flex-wrap">
+                ${exp.tags.map(t => `<span class="text-[10px] px-2 py-0.5 rounded-full" style="background: var(--card-bg); color: var(--textMuted); border: 1px solid var(--card-border);">${t}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick='editExperience(${JSON.stringify(exp).replace(/'/g, "&#39;")})' class="btn-edit text-xs">Editar</button>
+            <button onclick="deleteExperience(${exp.id})" class="btn-danger text-xs">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('exp-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorMsg = document.getElementById('exp-form-error');
+    errorMsg.style.display = 'none';
+
+    const achievements = document.getElementById('e-achievements').value.split('\n').filter(l => l.trim());
+    const tags = document.getElementById('e-tags').value.split(',').map(t => t.trim()).filter(Boolean);
+
+    const body = {
+      year: document.getElementById('e-year').value,
+      period: document.getElementById('e-period').value,
+      role: document.getElementById('e-role').value,
+      company: document.getElementById('e-company').value,
+      description: document.getElementById('e-description').value,
+      achievements: achievements.map(text => ({ text })),
+      tags,
+    };
+
+    try {
+      let res;
+      if (editingId) {
+        res = await fetchAPI(`/api/experiences/${editingId}`, { method: 'PUT', body: JSON.stringify(body) });
+      } else {
+        res = await fetchAPI('/api/experiences', { method: 'POST', body: JSON.stringify(body) });
+      }
+
+      if (res && res.ok) {
+        document.getElementById('exp-modal').classList.add('hidden');
+        loadExperiences();
+      } else {
+        const err = await res.json().catch(() => ({ detail: 'Error al guardar' }));
+        errorMsg.textContent = err.detail || 'Error al guardar';
+        errorMsg.style.display = 'block';
+      }
+    } catch (error) {
+      errorMsg.textContent = 'Error de conexión';
+      errorMsg.style.display = 'block';
+    }
+  });
+
+  document.addEventListener('astro:page-load', () => { if (getToken()) loadExperiences(); });
+  loadExperiences();
+</script>

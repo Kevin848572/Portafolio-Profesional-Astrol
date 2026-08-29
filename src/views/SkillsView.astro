@@ -4,77 +4,90 @@ import Navbar from './components/Navbar.astro';
 import { SkillController } from '../controllers/SkillController.js';
 import { ProfileController } from '../controllers/ProfileController.js';
 
-const skills = SkillController.getAllSkills();
+const categorizedSkills = SkillController.getCategorizedSkills();
 const footerData = ProfileController.getFooterData();
+
+const proficiencyPercentages: Record<string, number> = {
+  "Avanzado": 95,
+  "Intermedio": 80,
+  "Básico": 65
+};
 ---
 
-<Layout title="Habilidades | Desarrollador Frontend">
+<Layout title="Habilidades Técnicas | Kevin Pérez">
   <Navbar />
   
-  <main class="relative z-10 w-full pt-32 pb-24 min-h-screen">
+  <main class="relative z-10 w-full pt-28 sm:pt-32 pb-16 md:pb-24 min-h-screen">
     <!-- Ambient glowing light -->
-    <div class="absolute top-1/3 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full bg-accent/10 blur-[100px] pointer-events-none z-0"></div>
+    <div class="absolute top-1/3 left-1/2 -translate-x-1/2 w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] rounded-full bg-accent/10 blur-[100px] sm:blur-[140px] pointer-events-none z-0"></div>
 
-    <section id="habilidades" class="max-w-4xl mx-auto px-6 z-10 relative reveal-on-scroll opacity-0 translate-y-10 transition-all duration-1000 ease-out">
+    <section id="habilidades" class="max-w-5xl mx-auto px-4 sm:px-6 z-10 relative reveal-on-scroll">
       
       <!-- Glassmorphism Card Container -->
-      <div class="w-full p-8 md:p-12 rounded-[2.5rem] border border-cardBorder backdrop-blur-md bg-cardBg/30 shadow-[0_12px_40px_rgba(0,0,0,0.4)]">
+      <div class="w-full p-5 sm:p-8 md:p-12 rounded-3xl md:rounded-[2.5rem] glass-panel shadow-[0_15px_45px_rgba(0,0,0,0.5)]">
         
         <div class="text-center mb-12">
-          <h2 class="text-3xl md:text-5xl font-black uppercase tracking-[0.1em] text-textMain mb-4">
-            TECNOLOGÍAS & <span class="text-accent">SKILLS</span>
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-accent/30 bg-cardBg text-[10px] font-mono font-semibold text-accent mb-3">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
+            SYS.SKILLS // PROFICIENCY MATRIX
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-5xl font-black uppercase tracking-[0.06em] text-textMain mb-4">
+            TECNOLOGÍAS & <span class="text-accent">HABILIDADES</span>
           </h2>
-          <p class="text-sm text-textMuted font-light max-w-md mx-auto">
-            Stack técnico principal que utilizo día a día para maquetar, estructurar, animar y optimizar aplicaciones web.
+          <p class="text-xs sm:text-sm text-textMuted font-light max-w-lg mx-auto">
+            Herramientas y tecnologías que utilizo para construir aplicaciones web de alto rendimiento, escalables y con arquitectura moderna.
           </p>
         </div>
         
-        <!-- Skills Grid of Badges -->
-        <div class="flex flex-wrap justify-center gap-4">
-          {skills.map(skill => (
-            <div class="px-6 py-3.5 bg-background/50 border border-cardBorder rounded-2xl text-textMain font-medium hover:bg-cardBg hover:text-accent hover:border-accent/40 hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(212,175,55,0.15)] transition-all duration-300 cursor-default">
-              {skill}
+        <!-- Categorías de Habilidades -->
+        <div class="flex flex-col gap-10">
+          {categorizedSkills.map(group => (
+            <div class="flex flex-col gap-4">
+              <div class="flex items-center gap-3 pb-2 border-b border-cardBorder">
+                <span class="w-2.5 h-2.5 rounded-full bg-accent shadow-[0_0_8px_rgba(245,158,11,0.6)]"></span>
+                <h3 class="text-lg sm:text-xl font-bold uppercase tracking-wider text-textMain">
+                  {group.category}
+                </h3>
+              </div>
+
+              <!-- Grid de Tarjetas de Habilidades -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {group.skills.map(skill => {
+                  const percent = proficiencyPercentages[skill.level] || 85;
+                  return (
+                    <div class="p-4 sm:p-5 bg-background/50 border border-cardBorder rounded-2xl flex flex-col justify-between gap-3 hover:bg-cardBg hover:border-accent/40 hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(245,158,11,0.15)] transition-all duration-300 group">
+                      <div class="flex items-center justify-between">
+                        <h4 class="text-base font-bold text-textMain group-hover:text-accent transition-colors">
+                          {skill.name}
+                        </h4>
+                        <span class="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">
+                          {skill.level}
+                        </span>
+                      </div>
+                      <p class="text-xs text-textMuted font-light">
+                        {skill.desc}
+                      </p>
+                      
+                      <!-- Barra de progreso visual minimalista -->
+                      <div class="w-full bg-background/80 rounded-full h-1.5 overflow-hidden border border-cardBorder/60 mt-1">
+                        <div 
+                          class="bg-gradient-to-r from-accent via-amber-400 to-cyan-400 h-full rounded-full transition-all duration-1000"
+                          style={`width: ${percent}%`}
+                        ></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           ))}
         </div>
 
       </div>
     </section>
-
-    <!-- Floating Star Sparkle -->
-    <div class="fixed bottom-8 right-8 z-30 pointer-events-none select-none animate-pulse">
-      <svg class="w-10 h-10 md:w-14 md:h-14 text-accent drop-shadow-[0_0_15px_rgba(212,175,55,0.6)]" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4L12 0Z" />
-      </svg>
-    </div>
   </main>
 
-  <footer class="border-t border-cardBorder py-12 text-center text-footerText font-light text-sm relative z-10 bg-background/80 backdrop-blur-sm">
+  <footer class="border-t border-cardBorder py-12 text-center text-footerText font-light text-sm relative z-10 bg-background/80 backdrop-blur-md">
     <p>&copy; {footerData.year} {footerData.copyText}</p>
   </footer>
 </Layout>
-
-<script>
-  const setupSkillsObserver = () => {
-    const observerOptions = {
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.1
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.remove('opacity-0', 'translate-y-10');
-          entry.target.classList.add('opacity-100', 'translate-y-0');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, observerOptions);
-
-    const elements = document.querySelectorAll('.reveal-on-scroll');
-    elements.forEach(el => observer.observe(el));
-  };
-
-  document.addEventListener('DOMContentLoaded', setupSkillsObserver);
-</script>

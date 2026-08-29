@@ -1,0 +1,228 @@
+---
+import { ViewTransitions } from 'astro:transitions';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} | Admin Panel</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" />
+
+    <script define:vars={{ PUBLIC_API_URL: import.meta.env.PUBLIC_API_URL || '' }}>
+      window.PUBLIC_API_URL = PUBLIC_API_URL;
+    </script>
+
+    <ViewTransitions />
+
+
+    <script is:inline>
+      function applySavedTheme() {
+        const theme = localStorage.getItem('theme') || 'dark';
+        if (theme === 'light') {
+          document.documentElement.classList.add('light');
+        } else {
+          document.documentElement.classList.remove('light');
+        }
+      }
+      applySavedTheme();
+      document.addEventListener('astro:after-swap', applySavedTheme);
+    </script>
+
+    <style is:global>
+      :root {
+        --background: #030712;
+        --bg-image: url('/dark-bg.jpg');
+        --background-secondary: #080e22;
+        --textMain: #f8fafc;
+        --textMuted: #94a3b8;
+        --accent: #3b82f6;
+        --accent-rgb: 59, 130, 246;
+        --accent-cyan: #06b6d4;
+        --accent-amber: #f59e0b;
+        --card-bg: rgba(6, 12, 30, 0.68);
+        --card-border: rgba(255, 255, 255, 0.1);
+        --card-border-hover: rgba(59, 130, 246, 0.5);
+        --card-glow: rgba(59, 130, 246, 0.25);
+        --navbar-bg: rgba(4, 9, 24, 0.85);
+        --input-bg: rgba(3, 7, 18, 0.85);
+        --danger: #ef4444;
+        --success: #10b981;
+        --sidebar-width: 260px;
+      }
+
+      .light {
+        --background: #f1f5f9;
+        --bg-image: url('/light-bg.jpg');
+        --background-secondary: #e2e8f0;
+        --textMain: #0f172a;
+        --textMuted: #475569;
+        --accent: #2563eb;
+        --accent-rgb: 37, 99, 235;
+        --card-bg: rgba(255, 255, 255, 0.82);
+        --card-border: rgba(15, 23, 42, 0.12);
+        --card-border-hover: rgba(37, 99, 235, 0.45);
+        --card-glow: rgba(37, 99, 235, 0.15);
+        --navbar-bg: rgba(255, 255, 255, 0.9);
+        --input-bg: rgba(255, 255, 255, 0.95);
+      }
+
+      body {
+        background-color: var(--background) !important;
+        background-image: var(--bg-image) !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-attachment: fixed !important;
+        background-repeat: no-repeat !important;
+        color: var(--textMain);
+        font-family: 'Inter', system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .admin-card {
+        background: var(--card-bg) !important;
+        backdrop-filter: blur(24px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+        border: 1px solid var(--card-border) !important;
+        border-radius: 1rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), inset 0 1px 1px 0 rgba(255, 255, 255, 0.12);
+        transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .admin-card:hover {
+        border-color: var(--card-border-hover) !important;
+        box-shadow: 0 20px 45px -10px var(--card-glow), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+      }
+
+      .admin-input {
+        width: 100%;
+        padding: 10px 14px;
+        background: var(--input-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        color: var(--textMain);
+        font-size: 14px;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        outline: none;
+        backdrop-filter: blur(10px);
+      }
+
+      .admin-input:focus {
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.25), 0 0 20px rgba(var(--accent-rgb), 0.15);
+      }
+
+      .admin-input::placeholder {
+        color: var(--textMuted);
+      }
+
+      .btn-primary {
+        padding: 10px 22px;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.35);
+      }
+
+      .btn-primary:hover {
+        box-shadow: 0 8px 30px rgba(var(--accent-rgb), 0.5);
+        transform: translateY(-2px);
+      }
+
+      .btn-secondary {
+        padding: 10px 22px;
+        background: transparent;
+        color: var(--textMuted);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        backdrop-filter: blur(10px);
+      }
+
+      .btn-secondary:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.15);
+      }
+
+      .btn-danger {
+        padding: 8px 16px;
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        backdrop-filter: blur(10px);
+      }
+
+      .btn-danger:hover {
+        background: var(--danger);
+        color: #fff;
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+        transform: translateY(-1px);
+      }
+
+      .btn-edit {
+        padding: 8px 16px;
+        background: rgba(var(--accent-rgb), 0.1);
+        color: var(--accent);
+        border: 1px solid rgba(var(--accent-rgb), 0.25);
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        backdrop-filter: blur(10px);
+      }
+
+      .btn-edit:hover {
+        background: var(--accent);
+        color: #fff;
+        box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.35);
+        transform: translateY(-1px);
+      }
+
+      select.admin-input {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 36px;
+      }
+
+      textarea.admin-input {
+        resize: vertical;
+        min-height: 80px;
+      }
+
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+  </head>
+  <body class="min-h-screen transition-colors duration-300">
+    <slot />
+  </body>
+</html>

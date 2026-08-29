@@ -1,0 +1,256 @@
+---
+import AdminLayout from '../../components/admin/AdminLayout.astro';
+import AdminSidebar from '../../components/admin/AdminSidebar.astro';
+import AdminNavbar from '../../components/admin/AdminNavbar.astro';
+---
+
+<AdminLayout title="Habilidades">
+  <AdminSidebar />
+  <AdminNavbar title="Gestión de Habilidades" />
+
+  <main class="ml-[var(--sidebar-width)] pt-20 px-8 pb-12 min-h-screen transition-all duration-300">
+    <div class="flex items-center justify-between mb-6">
+      <p class="text-sm" style="color: var(--textMuted);">Administra tus habilidades y categorías</p>
+      <div class="flex gap-3">
+        <button id="btn-new-category" class="btn-secondary flex items-center gap-2">
+          <span class="material-icons-outlined text-[18px]">add</span>
+          Nueva Categoría
+        </button>
+        <button id="btn-new-skill" class="btn-primary flex items-center gap-2">
+          <span class="material-icons-outlined text-[18px]">add</span>
+          Nueva Skill
+        </button>
+      </div>
+    </div>
+
+    <!-- Categories & Skills -->
+    <div id="skills-container" class="space-y-6">
+      <p class="text-sm" style="color: var(--textMuted);">Cargando habilidades...</p>
+    </div>
+
+    <!-- Skill Modal -->
+    <div id="skill-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+      style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
+      <div class="admin-card w-full max-w-lg p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 id="skill-modal-title" class="text-lg font-bold" style="color: var(--textMain);">Nueva Skill</h3>
+          <button id="btn-close-skill-modal" class="p-2 rounded-lg hover:opacity-80" style="color: var(--textMuted);">
+            <span class="material-icons-outlined">close</span>
+          </button>
+        </div>
+        <form id="skill-form" class="space-y-4">
+          <input type="hidden" id="skill-id" />
+          <div>
+            <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">Nombre *</label>
+            <input type="text" id="s-name" class="admin-input" required placeholder="React" />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">Nivel *</label>
+              <select id="s-level" class="admin-input" required>
+                <option value="Avanzado">Avanzado</option>
+                <option value="Intermedio">Intermedio</option>
+                <option value="Básico">Básico</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">Categoría *</label>
+              <select id="s-category" class="admin-input" required></select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">Descripción</label>
+            <textarea id="s-description" class="admin-input" rows="2" placeholder="Descripción de la habilidad"></textarea>
+          </div>
+          <div id="skill-form-error" class="hidden text-sm font-medium px-4 py-3 rounded-xl"
+            style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2);"></div>
+          <div class="flex justify-end gap-3 pt-2">
+            <button type="button" id="btn-cancel-skill" class="btn-secondary">Cancelar</button>
+            <button type="submit" class="btn-primary">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div id="category-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+      style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
+      <div class="admin-card w-full max-w-md p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-bold" style="color: var(--textMain);">Nueva Categoría</h3>
+          <button id="btn-close-category-modal" class="p-2 rounded-lg hover:opacity-80" style="color: var(--textMuted);">
+            <span class="material-icons-outlined">close</span>
+          </button>
+        </div>
+        <form id="category-form" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style="color: var(--textMuted);">Nombre *</label>
+            <input type="text" id="c-name" class="admin-input" required placeholder="Nueva Categoría" />
+          </div>
+          <div class="flex justify-end gap-3 pt-2">
+            <button type="button" id="btn-cancel-category" class="btn-secondary">Cancelar</button>
+            <button type="submit" class="btn-primary">Crear</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</AdminLayout>
+
+<script is:inline>
+  const API_URL = window.PUBLIC_API_URL || '';
+
+  let editingSkillId = null;
+  let categories = [];
+
+  function getToken() { return localStorage.getItem('admin_token'); }
+
+  async function fetchAPI(endpoint, options = {}) {
+    const token = getToken();
+    const res = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        ...options.headers,
+      },
+    });
+    if (res.status === 401) {
+      localStorage.removeItem('admin_token');
+      window.location.href = '/admin/login';
+      return null;
+    }
+    return res;
+  }
+
+  async function loadSkills() {
+    const res = await fetchAPI('/api/skills');
+    if (!res) return;
+    categories = await res.json();
+    const container = document.getElementById('skills-container');
+
+    if (categories.length === 0) {
+      container.innerHTML = '<p class="text-sm" style="color: var(--textMuted);">No hay categorías ni skills aún</p>';
+      return;
+    }
+
+    container.innerHTML = categories.map(cat => `
+      <div class="admin-card p-5">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <span class="material-icons-outlined text-[20px]" style="color: var(--accent);">category</span>
+            <h3 class="font-bold" style="color: var(--textMain);">${cat.name}</h3>
+            <span class="text-xs px-2 py-0.5 rounded-full" style="background: var(--card-bg); color: var(--textMuted);">${cat.skills.length} skills</span>
+          </div>
+        </div>
+        <div class="space-y-2">
+          ${cat.skills.map(s => `
+            <div class="flex items-center justify-between p-3 rounded-xl" style="background: var(--card-bg); border: 1px solid var(--card-border);">
+              <div class="flex items-center gap-3">
+                <span class="font-semibold text-sm" style="color: var(--textMain);">${s.name}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full" style="background: rgba(245, 158, 11, 0.1); color: var(--accent);">${s.level}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick='editSkill(${JSON.stringify(s).replace(/'/g, "&#39;")})' class="btn-edit text-xs">Editar</button>
+                <button onclick="deleteSkill(${s.id})" class="btn-danger text-xs">Eliminar</button>
+              </div>
+            </div>
+          `).join('')}
+          ${cat.skills.length === 0 ? '<p class="text-xs" style="color: var(--textMuted);">Sin skills en esta categoría</p>' : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function showSkillModal(skill = null) {
+    const modal = document.getElementById('skill-modal');
+    const title = document.getElementById('skill-modal-title');
+    const categorySelect = document.getElementById('s-category');
+    
+    categorySelect.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+    if (skill) {
+      editingSkillId = skill.id;
+      title.textContent = 'Editar Skill';
+      document.getElementById('skill-id').value = skill.id;
+      document.getElementById('s-name').value = skill.name;
+      document.getElementById('s-level').value = skill.level;
+      document.getElementById('s-category').value = skill.category_id;
+      document.getElementById('s-description').value = skill.description || '';
+    } else {
+      editingSkillId = null;
+      title.textContent = 'Nueva Skill';
+      document.getElementById('skill-form').reset();
+    }
+    document.getElementById('skill-form-error').style.display = 'none';
+    modal.classList.remove('hidden');
+  }
+
+  window.editSkill = function(skill) { showSkillModal(skill); };
+
+  window.deleteSkill = async function(id) {
+    if (!confirm('¿Eliminar esta skill?')) return;
+    const res = await fetchAPI(`/api/skills/${id}`, { method: 'DELETE' });
+    if (res && res.ok) loadSkills();
+  };
+
+  document.getElementById('btn-new-skill')?.addEventListener('click', () => showSkillModal());
+  document.getElementById('btn-close-skill-modal')?.addEventListener('click', () => document.getElementById('skill-modal').classList.add('hidden'));
+  document.getElementById('btn-cancel-skill')?.addEventListener('click', () => document.getElementById('skill-modal').classList.add('hidden'));
+
+  document.getElementById('btn-new-category')?.addEventListener('click', () => document.getElementById('category-modal').classList.remove('hidden'));
+  document.getElementById('btn-close-category-modal')?.addEventListener('click', () => document.getElementById('category-modal').classList.add('hidden'));
+  document.getElementById('btn-cancel-category')?.addEventListener('click', () => document.getElementById('category-modal').classList.add('hidden'));
+
+  document.getElementById('skill-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorMsg = document.getElementById('skill-form-error');
+    errorMsg.style.display = 'none';
+
+    const body = {
+      name: document.getElementById('s-name').value,
+      level: document.getElementById('s-level').value,
+      category_id: parseInt(document.getElementById('s-category').value),
+      description: document.getElementById('s-description').value || null,
+    };
+
+    try {
+      let res;
+      if (editingSkillId) {
+        res = await fetchAPI(`/api/skills/${editingSkillId}`, { method: 'PUT', body: JSON.stringify(body) });
+      } else {
+        res = await fetchAPI('/api/skills', { method: 'POST', body: JSON.stringify(body) });
+      }
+
+      if (res && res.ok) {
+        document.getElementById('skill-modal').classList.add('hidden');
+        loadSkills();
+      } else {
+        const err = await res.json().catch(() => ({ detail: 'Error al guardar' }));
+        errorMsg.textContent = err.detail || 'Error al guardar';
+        errorMsg.style.display = 'block';
+      }
+    } catch (error) {
+      errorMsg.textContent = 'Error de conexión';
+      errorMsg.style.display = 'block';
+    }
+  });
+
+  document.getElementById('category-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('c-name').value;
+    const res = await fetchAPI('/api/skills/categories', {
+      method: 'POST',
+      body: JSON.stringify({ name }),
+    });
+
+    if (res && res.ok) {
+      document.getElementById('category-modal').classList.add('hidden');
+      document.getElementById('category-form').reset();
+      loadSkills();
+    }
+  });
+
+  document.addEventListener('astro:page-load', () => { if (getToken()) loadSkills(); });
+  loadSkills();
+</script>

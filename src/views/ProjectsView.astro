@@ -4,92 +4,230 @@ import Navbar from './components/Navbar.astro';
 import { ProjectController } from '../controllers/ProjectController.js';
 import { ProfileController } from '../controllers/ProfileController.js';
 
-const projects = ProjectController.getFeaturedProjects();
+const projects = ProjectController.getAllProjects();
+const categories = ProjectController.getCategories();
 const footerData = ProfileController.getFooterData();
 ---
 
-<Layout title="Proyectos | Desarrollador Frontend">
+<Layout title="Proyectos & Desarrollos | Kevin Pérez">
   <Navbar />
   
-  <main class="relative z-10 w-full pt-32 pb-24 min-h-screen">
-    <!-- Radial ambient glow -->
-    <div class="absolute top-1/3 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full bg-accent/10 blur-[100px] pointer-events-none z-0"></div>
+  <main class="relative z-10 w-full pt-28 sm:pt-32 pb-16 md:pb-24 min-h-screen">
+    <!-- Ambient Light -->
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[350px] h-[350px] sm:w-[600px] sm:h-[600px] rounded-full bg-accent/10 blur-[110px] sm:blur-[150px] pointer-events-none z-0"></div>
 
-    <section id="proyectos" class="max-w-6xl mx-auto px-6 z-10 relative reveal-on-scroll opacity-0 translate-y-10 transition-all duration-1000 ease-out">
+    <section id="proyectos" class="max-w-6xl mx-auto px-4 sm:px-6 z-10 relative reveal-on-scroll">
       
-      <!-- Glassmorphism Card Container -->
-      <div class="w-full p-8 md:p-12 rounded-[2.5rem] border border-cardBorder backdrop-blur-md bg-cardBg/30 shadow-[0_12px_40px_rgba(0,0,0,0.4)]">
+      <!-- Contenedor Maestro Glassmorphic -->
+      <div class="w-full p-5 sm:p-8 md:p-12 rounded-3xl md:rounded-[2.5rem] glass-panel shadow-[0_15px_45px_rgba(0,0,0,0.5)]">
         
-        <div class="text-center mb-12">
-          <h2 class="text-3xl md:text-5xl font-black uppercase tracking-[0.1em] text-textMain mb-4">
+        <!-- Header -->
+        <div class="text-center mb-10">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-accent/30 bg-cardBg text-[10px] font-mono font-semibold text-accent mb-3">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
+            SYS.PROJECTS // REPOSITORY MATRIX
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-5xl font-black uppercase tracking-[0.06em] text-textMain mb-3">
             PROYECTOS <span class="text-accent">DESTACADOS</span>
           </h2>
-          <p class="text-sm text-textMuted font-light max-w-lg mx-auto">
-            Explora una selección de mis trabajos más recientes construidos con tecnologías de alto rendimiento y estética impecable.
+          <p class="text-xs sm:text-sm text-textMuted font-light max-w-lg mx-auto">
+            Explora una selección de aplicaciones completas, plataformas analíticas y sistemas web interactivos.
           </p>
         </div>
-        
-        <!-- Grid of Project Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project, idx) => (
-            <article class="group relative rounded-2xl border border-cardBorder bg-background/50 p-6 flex flex-col justify-between h-72 overflow-hidden transition-all duration-500 hover:border-accent/40">
-              <div class="flex flex-col gap-4 z-10">
-                <span class="text-[10px] uppercase font-bold tracking-widest text-accent">0{idx + 1} / Project</span>
-                <h3 class="text-xl font-bold text-textMain group-hover:text-accent transition-colors">{project.title}</h3>
-                <p class="text-sm text-textMuted font-light leading-relaxed">{project.desc}</p>
+
+        <!-- Filtros por Categoría en Cápsulas Glass -->
+        <div class="flex items-center justify-center gap-2 sm:gap-3 flex-wrap mb-10">
+          {categories.map((cat, idx) => (
+            <button 
+              data-category={cat}
+              class={`filter-btn px-4 sm:px-5 py-2 rounded-full text-xs font-mono font-bold tracking-wider transition-all duration-300 cursor-pointer ${
+                idx === 0 
+                  ? 'active-filter bg-accent text-background shadow-[0_0_20px_rgba(245,158,11,0.5)]' 
+                  : 'bg-cardBg border border-cardBorder text-textMuted hover:border-accent/40 hover:text-textMain'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        <!-- Grid de Proyectos -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="projects-grid">
+          {projects.map((project) => (
+            <article 
+              data-category={project.category}
+              class="project-card group relative p-5 rounded-3xl bg-background/50 border border-cardBorder flex flex-col justify-between hover:bg-cardBg hover:border-accent/40 hover:-translate-y-1.5 hover:shadow-[0_15px_35px_rgba(245,158,11,0.18)] transition-all duration-300 overflow-hidden"
+            >
+              <!-- Borde sutil superior -->
+              <div class="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-accent/30 to-transparent"></div>
+
+              <div>
+                <div class="relative h-44 w-full rounded-2xl overflow-hidden mb-4 border border-cardBorder/60 bg-cardBg">
+                  <img 
+                    src={project.image} 
+                    alt={project.title} 
+                    class="w-full h-full object-cover filter grayscale contrast-110 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+                    loading="lazy"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent pointer-events-none"></div>
+                  <span class="absolute top-3 left-3 text-[9px] uppercase font-mono font-bold tracking-wider px-2.5 py-1 bg-background/80 backdrop-blur-md rounded-full text-accent border border-accent/30">
+                    {project.category}
+                  </span>
+                </div>
+
+                <h3 class="text-base sm:text-lg font-bold text-textMain group-hover:text-accent transition-colors">{project.title}</h3>
+                <p class="text-xs text-textMuted font-light leading-relaxed line-clamp-3 mt-1.5">{project.desc}</p>
               </div>
               
-              <div class="flex gap-2 flex-wrap z-10 mt-6">
-                {project.tags.map(tag => (
-                  <span class="text-[10px] font-semibold px-2.5 py-0.5 bg-cardBg border border-cardBorder rounded-full text-textMain">
-                    {tag}
-                  </span>
-                ))}
+              <div class="mt-6 flex flex-col gap-4">
+                <div class="flex gap-1.5 flex-wrap">
+                  {project.tags.map(tag => (
+                    <span class="interactive-tag text-[9px] font-mono font-semibold px-2.5 py-0.5 bg-background/80 border border-cardBorder rounded-full text-textMain/90 hover:border-accent/40 transition-colors">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <!-- Botones de Enlaces Directos & Detalle -->
+                <div class="flex items-center justify-between pt-3 border-t border-cardBorder/50">
+                  <button 
+                    data-modal-target={project.id}
+                    class="open-modal-btn text-xs font-bold text-accent hover:underline flex items-center gap-1 cursor-pointer font-mono"
+                  >
+                    <span>[ Detalles ]</span>
+                  </button>
+
+                  <div class="flex items-center gap-2">
+                    <a 
+                      href={project.githubUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      aria-label={`GitHub de ${project.title}`}
+                      class="p-2 rounded-xl bg-cardBg border border-cardBorder text-textMuted hover:text-accent hover:border-accent/40 transition-colors"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
               </div>
 
-              <!-- Glow border and bottom glow -->
-              <div class="absolute inset-0 bg-gradient-to-t from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0"></div>
             </article>
           ))}
         </div>
 
       </div>
     </section>
-
-    <!-- Floating Star Sparkle -->
-    <div class="fixed bottom-8 right-8 z-30 pointer-events-none select-none animate-pulse">
-      <svg class="w-10 h-10 md:w-14 md:h-14 text-accent drop-shadow-[0_0_15px_rgba(212,175,55,0.6)]" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4L12 0Z" />
-      </svg>
-    </div>
   </main>
 
-  <footer class="border-t border-cardBorder py-12 text-center text-footerText font-light text-sm relative z-10 bg-background/80 backdrop-blur-sm">
+  <!-- Modal Interactivo para Detalles del Proyecto -->
+  <div id="project-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="relative w-full max-w-xl glass-panel bg-cardBg-solid sm:bg-cardBg rounded-3xl p-6 sm:p-8 shadow-2xl transition-transform duration-300 scale-95 max-h-[90vh] overflow-y-auto" id="modal-content">
+      <button id="close-modal-btn" class="absolute top-4 right-4 p-2 text-textMuted hover:text-accent rounded-full hover:bg-background transition-colors cursor-pointer" aria-label="Cerrar modal">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <div id="modal-body" class="flex flex-col gap-4">
+        <!-- Renderizado dinámico vía JS -->
+      </div>
+    </div>
+  </div>
+
+  <footer class="border-t border-cardBorder py-12 text-center text-footerText font-light text-sm relative z-10 bg-background/80 backdrop-blur-md">
     <p>&copy; {footerData.year} {footerData.copyText}</p>
   </footer>
 </Layout>
 
-<script>
-  const setupProjectsObserver = () => {
-    const observerOptions = {
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.1
+<script is:inline define:vars={{ projects }}>
+  const setupProjectsView = () => {
+    // 1. Filtrado por Categorías
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const projectCards = document.querySelectorAll('.project-card');
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cat = btn.getAttribute('data-category');
+
+        filterBtns.forEach(b => {
+          b.classList.remove('active-filter', 'bg-accent', 'text-background', 'shadow-[0_0_20px_rgba(245,158,11,0.5)]');
+          b.classList.add('bg-cardBg', 'border', 'border-cardBorder', 'text-textMuted');
+        });
+
+        btn.classList.add('active-filter', 'bg-accent', 'text-background', 'shadow-[0_0_20px_rgba(245,158,11,0.5)]');
+        btn.classList.remove('bg-cardBg', 'text-textMuted');
+
+        projectCards.forEach(card => {
+          const cardCat = card.getAttribute('data-category');
+          if (cat === 'Todos' || cardCat === cat) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // 2. Modal de Detalles
+    const modal = document.getElementById('project-modal');
+    const modalContent = document.getElementById('modal-content');
+    const modalBody = document.getElementById('modal-body');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+
+    const openModal = (projectId) => {
+      const proj = projects.find(p => p.id === projectId);
+      if (!proj || !modal || !modalBody) return;
+
+      modalBody.innerHTML = `
+        <div class="relative h-48 w-full rounded-2xl overflow-hidden mb-2">
+          <img src="${proj.image}" alt="${proj.title}" class="w-full h-full object-cover" />
+          <span class="absolute top-3 left-3 text-[9px] uppercase font-mono font-bold tracking-widest px-2.5 py-1 bg-background/80 backdrop-blur-md rounded-full text-accent border border-accent/30">
+            ${proj.category}
+          </span>
+        </div>
+        <h3 class="text-2xl font-black text-textMain">${proj.title}</h3>
+        <p class="text-xs sm:text-sm text-textMuted font-light leading-relaxed">${proj.longDesc || proj.desc}</p>
+        
+        <div class="flex gap-1.5 flex-wrap my-2">
+          ${proj.tags.map(t => `<span class="text-[10px] font-mono font-semibold px-2.5 py-0.5 bg-background border border-cardBorder rounded-full text-accent">${t}</span>`).join('')}
+        </div>
+
+        <div class="flex items-center gap-3 mt-4 pt-4 border-t border-cardBorder">
+          <a href="${proj.githubUrl}" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 rounded-full bg-accent text-background font-bold text-xs uppercase tracking-wider hover:scale-105 transition-all shadow-[0_0_20px_rgba(245,158,11,0.4)]">
+            Ver Código en GitHub
+          </a>
+        </div>
+      `;
+
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      modal.classList.add('opacity-100');
+      modalContent?.classList.remove('scale-95');
+      modalContent?.classList.add('scale-100');
     };
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.remove('opacity-0', 'translate-y-10');
-          entry.target.classList.add('opacity-100', 'translate-y-0');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, observerOptions);
+    const closeModal = () => {
+      if (!modal) return;
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      modal.classList.remove('opacity-100');
+      modalContent?.classList.add('scale-95');
+    };
 
-    const elements = document.querySelectorAll('.reveal-on-scroll');
-    elements.forEach(el => observer.observe(el));
+    document.querySelectorAll('.open-modal-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-modal-target');
+        if (targetId) openModal(targetId);
+      });
+    });
+
+    closeModalBtn?.addEventListener('click', closeModal);
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
   };
 
-  document.addEventListener('DOMContentLoaded', setupProjectsObserver);
+  document.addEventListener('DOMContentLoaded', setupProjectsView);
+  document.addEventListener('astro:page-load', setupProjectsView);
 </script>

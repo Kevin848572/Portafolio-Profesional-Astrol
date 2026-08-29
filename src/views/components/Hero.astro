@@ -3,67 +3,121 @@ import { ProfileController } from '../../controllers/ProfileController.js';
 
 const heroData = ProfileController.getHeroData();
 ---
-<section id="inicio" class="relative min-h-[90vh] flex flex-col items-center justify-center pt-32 pb-16 overflow-hidden">
+
+<section class="relative min-h-[90vh] flex flex-col items-center justify-center pt-24 pb-12 overflow-hidden select-none">
   
   <!-- Glowing Background Radial Glow behind the big PORTFOLIO text -->
-  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] md:w-[600px] md:h-[600px] rounded-full bg-accent/20 blur-[120px] pointer-events-none z-0"></div>
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] sm:w-[540px] sm:h-[540px] md:w-[800px] md:h-[800px] rounded-full bg-accent/10 blur-[110px] md:blur-[150px] pointer-events-none z-0"></div>
 
-  <!-- Contenedor de la Foto y Efecto Espejo -->
-  <div class="relative flex flex-col items-center justify-center z-10 select-none animate-fade-in">
+  <!-- Badge de disponibilidad flotante -->
+  <div class="hero-status-badge z-30 mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/30 bg-cardBg/70 backdrop-blur-md text-xs font-semibold text-textMain shadow-[0_0_20px_rgba(245,158,11,0.15)] opacity-0">
+    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+    <span class="w-2 h-2 rounded-full bg-emerald-400 -ml-4"></span>
+    <span class="tracking-wide uppercase text-[11px] text-accent font-bold font-mono">{heroData.status}</span>
+  </div>
+
+  <!-- Contenedor del Monograma Glassmorphic y Badges Flotantes -->
+  <div class="relative flex flex-col items-center justify-center z-20 my-4 sm:my-6">
     
-    <!-- Retrato Vertical Central -->
-    <div class="relative w-56 h-[320px] md:w-64 md:h-[380px] overflow-hidden rounded-2xl border border-white/10 shadow-2xl z-20 transition-all duration-700 hover:scale-[1.02]">
-      <!-- Capa de brillo superior de cristal -->
-      <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/10 pointer-events-none"></div>
-      <img 
-        src={heroData.imageUrl} 
-        alt="Perfil del Desarrollador" 
-        class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000 ease-out scale-105 hover:scale-100"
-      />
-    </div>
-
-    <!-- Reflejo Especular Invertido (Mirror Effect) -->
-    <div class="relative w-56 h-[320px] md:w-64 md:h-[380px] -mt-1 scale-y-[-1] opacity-30 pointer-events-none select-none z-10 blur-[1px]">
-      <img 
-        src={heroData.imageUrl} 
-        alt="Reflejo" 
-        class="w-full h-full object-cover mask-image-gradient grayscale"
-      />
-    </div>
-
-    <!-- Texto Gigante Superpuesto "PORTFOLIO" con Brillo -->
-    <h1 class="absolute top-[200px] md:top-[240px] text-6xl sm:text-7xl md:text-9xl font-black tracking-[0.2em] text-white/95 z-30 drop-shadow-[0_4px_30px_rgba(212,175,55,0.4)] pointer-events-none text-center pl-[0.2em] uppercase font-sans">
-      PORTFOLIO
+    <!-- Texto Gigante de Fondo "PORTAFOLIO" con Marcadura de Agua Elegante -->
+    <h1 class="portfolio-title absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-screen text-[clamp(2.8rem,13vw,11rem)] font-black tracking-[clamp(0.04em,1.5vw,0.3em)] z-0 pointer-events-none text-center uppercase font-mono opacity-0 select-none">
+      PORTAFOLIO
     </h1>
+
+    <!-- Tarjeta Central Glassmorphism con Monograma KP y Brillo Neón -->
+    <div class="hero-monogram-card relative z-10 flex flex-col items-center justify-center p-6 sm:p-8 rounded-3xl border border-white/15 bg-cardBg/50 backdrop-blur-2xl shadow-[0_15px_50px_rgba(0,0,0,0.5)] group transition-all duration-500 hover:scale-105 hover:border-accent/50 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] opacity-0">
+      
+      <!-- Monograma / Retrato Fotográfico en Escala de Grises con Revelado y Transición a Color al Hover -->
+      <div class="relative w-28 h-28 sm:w-36 sm:h-36 rounded-2xl p-1.5 bg-gradient-to-br from-accent/40 via-white/10 to-accent/20 border border-accent/60 flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.25)] overflow-hidden group-hover:border-accent group-hover:shadow-[0_0_45px_rgba(245,158,11,0.5)] transition-all duration-500">
+        <img 
+          src="/logo.png" 
+          alt="Logo KP - Kevin Pérez" 
+          class="hero-profile-image w-full h-full object-cover rounded-xl shadow-md transition-all duration-700 filter grayscale contrast-115 group-hover:grayscale-0 group-hover:scale-105"
+        />
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-accent/10 to-transparent opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500"></div>
+      </div>
+
+      <!-- Detalle Tecnológico bajo Monograma -->
+      <div class="mt-4 flex items-center gap-2 text-[11px] uppercase tracking-widest text-textMuted font-mono font-semibold">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
+        Frontend & UI Specialist
+      </div>
+
+      <!-- Badges Flotantes de Tecnologías Alrededor (Con Física Elástica) -->
+      <div class="hero-tech-badge interactive-tag absolute -top-4 -left-6 sm:-left-12 px-3.5 py-1.5 rounded-full bg-cardBg/90 border border-accent/40 backdrop-blur-md text-[11px] font-bold text-textMain shadow-lg flex items-center gap-1.5 transition-transform duration-300 hover:scale-110 hover:border-accent cursor-default opacity-0">
+        <span class="text-accent font-mono">✦</span> Astro
+      </div>
+
+      <div class="hero-tech-badge interactive-tag absolute -top-4 -right-6 sm:-right-12 px-3.5 py-1.5 rounded-full bg-cardBg/90 border border-cyan-500/40 backdrop-blur-md text-[11px] font-bold text-textMain shadow-lg flex items-center gap-1.5 transition-transform duration-300 hover:scale-110 hover:border-cyan-400 cursor-default opacity-0">
+        <span class="text-cyan-400 font-mono">⚛</span> React
+      </div>
+
+      <div class="hero-tech-badge interactive-tag absolute -bottom-4 -left-6 sm:-left-12 px-3.5 py-1.5 rounded-full bg-cardBg/90 border border-teal-500/40 backdrop-blur-md text-[11px] font-bold text-textMain shadow-lg flex items-center gap-1.5 transition-transform duration-300 hover:scale-110 hover:border-teal-400 cursor-default opacity-0">
+        <span class="text-teal-400 font-mono">≋</span> Tailwind
+      </div>
+
+      <div class="hero-tech-badge interactive-tag absolute -bottom-4 -right-6 sm:-right-12 px-3.5 py-1.5 rounded-full bg-cardBg/90 border border-violet-500/40 backdrop-blur-md text-[11px] font-bold text-textMain shadow-lg flex items-center gap-1.5 transition-transform duration-300 hover:scale-110 hover:border-violet-400 cursor-default opacity-0">
+        <span class="text-violet-400 font-mono">⚡</span> GSAP
+      </div>
+
+    </div>
+
   </div>
 
-  <!-- Luces decorativas de meteoros o estrellas fugaces (como en la imagen de referencia) -->
-  <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-    <div class="meteor-1"></div>
-    <div class="meteor-2"></div>
-    <div class="meteor-3"></div>
+  <!-- Kinetic Typography: Nombre, Titular y Máscaras de Texto -->
+  <div class="z-30 mt-4 text-center max-w-3xl px-4 flex flex-col items-center gap-3">
+    
+    <!-- Título Principal con Máscara Cinética -->
+    <div class="overflow-hidden py-1">
+      <h2 class="kinetic-line-inner block text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-textMain">
+        {heroData.name}
+      </h2>
+    </div>
+
+    <!-- Subtítulo de Rol con Máscara Cinética -->
+    <div class="overflow-hidden py-0.5">
+      <p class="kinetic-line-inner block text-xs sm:text-base text-accent uppercase font-bold tracking-[0.24em] font-mono">
+        {heroData.role}
+      </p>
+    </div>
+
+    <!-- Descripción breve cinematográfica -->
+    <div class="overflow-hidden py-1 max-w-xl">
+      <p class="kinetic-line-inner block text-xs sm:text-sm text-textMuted font-light leading-relaxed">
+        {heroData.subtitle}
+      </p>
+    </div>
+
+    <!-- Botones de Acción CTA con Microinteracción Magnética -->
+    <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mt-4">
+      <a 
+        href="/proyectos" 
+        class="hero-cta-btn magnetic-btn px-7 py-3.5 rounded-full bg-accent text-background font-black text-xs uppercase tracking-widest hover:scale-105 hover:shadow-[0_0_30px_rgba(245,158,11,0.6)] active:scale-95 transition-all duration-300 shadow-md flex items-center gap-2 opacity-0"
+      >
+        <span>Explorar Proyectos</span>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
+        </svg>
+      </a>
+      <a 
+        href="/#panel-control" 
+        class="hero-cta-btn magnetic-btn px-7 py-3.5 rounded-full border border-cardBorder bg-cardBg/60 backdrop-blur-md text-textMain hover:text-accent hover:border-accent/50 font-bold text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all duration-300 opacity-0 flex items-center gap-1.5"
+      >
+        <span class="material-icons-outlined text-sm text-accent">dashboard</span>
+        <span>Ver Panel & Métricas</span>
+      </a>
+    </div>
   </div>
+
 </section>
 
 <style>
-  @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.97); }
-    to { opacity: 1; transform: scale(1); }
-  }
-  .animate-fade-in {
-    animation: fadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  .portfolio-title {
+    color: rgba(255, 255, 255, 0.05);
+    transition: color 0.4s ease;
   }
 
-  /* Estilos para meteoros fugaces de la imagen de referencia */
-  .meteor-1, .meteor-2, .meteor-3 {
-    position: absolute;
-    width: 2px;
-    height: 60px;
-    background: linear-gradient(to top, rgba(212, 175, 55, 0.4), transparent);
-    transform: rotate(-35deg);
-    opacity: 0.15;
+  :global(.light) .portfolio-title {
+    color: rgba(15, 23, 42, 0.05);
   }
-  .meteor-1 { top: 25%; left: 15%; height: 80px; }
-  .meteor-2 { top: 45%; right: 20%; height: 50px; }
-  .meteor-3 { top: 60%; left: 75%; height: 70px; }
 </style>

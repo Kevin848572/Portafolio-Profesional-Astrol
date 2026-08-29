@@ -1,18 +1,57 @@
 ---
+const pathname = Astro.url.pathname;
+
+const navItems = [
+  { href: '/', label: 'INICIO' },
+  { href: '/#panel-control', label: 'PANEL' },
+  { href: '/proyectos', label: 'PROYECTOS' },
+  { href: '/habilidades', label: 'HABILIDADES' },
+  { href: '/contactar', label: 'CONTACTO' },
+];
+
+const isActive = (path: string) => {
+  if (path === '/') return pathname === '/';
+  if (path.startsWith('/#')) return false;
+  return pathname.startsWith(path);
+};
 ---
+
 <!-- Contenedor flotante centrado en la parte superior -->
-<div class="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-auto max-w-[95%]">
-  <nav class="flex items-center gap-6 px-6 py-2.5 rounded-full border border-cardBorder backdrop-blur-lg bg-cardBg/60 shadow-[0_8px_32px_rgba(0,0,0,0.15)] transition-all">
-    <a href="/" class="text-xs uppercase tracking-wider font-semibold text-textMain/80 hover:text-accent transition-colors">HOME</a>
-    <a href="/proyectos" class="text-xs uppercase tracking-wider font-semibold text-textMain/80 hover:text-accent transition-colors">WORKS</a>
-    <a href="/habilidades" class="text-xs uppercase tracking-wider font-semibold text-textMain/80 hover:text-accent transition-colors">ABOUT</a>
-    <a href="/contactar" class="text-xs uppercase tracking-wider font-semibold text-textMain/80 hover:text-accent transition-colors">CONTACT</a>
+<div class="fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100vw-1.25rem)] sm:w-auto sm:max-w-[95%]">
+  <nav class="flex items-center justify-between sm:justify-center gap-1 sm:gap-2.5 md:gap-3 px-3 sm:px-5 py-2 rounded-full border border-cardBorder backdrop-blur-xl bg-navbarBg shadow-[0_10px_35px_rgba(0,0,0,0.35)] transition-all">
     
+    <!-- Logo Monograma -->
+    <a href="/" class="shrink-0 flex items-center gap-2 pr-2 border-r border-cardBorder/60 hover:opacity-90 transition-opacity">
+      <div class="w-6 h-6 rounded-full bg-accent/20 border border-accent/60 flex items-center justify-center shadow-[0_0_10px_rgba(245,158,11,0.4)]">
+        <span class="font-black text-[10px] tracking-wider text-accent font-mono">KP</span>
+      </div>
+      <span class="font-extrabold text-[11px] tracking-wider text-textMain hidden md:inline">KEVIN PÉREZ</span>
+    </a>
+
+    <!-- Enlaces de Navegación -->
+    <div class="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar">
+      {navItems.map(item => (
+        <a 
+          href={item.href} 
+          class={`shrink-0 text-[10px] sm:text-xs uppercase tracking-[0.08em] font-bold px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 ${
+            isActive(item.href) 
+              ? 'text-background bg-accent shadow-[0_0_18px_rgba(245,158,11,0.5)] font-black' 
+              : 'text-textMain/80 hover:text-accent hover:bg-cardBorder/40'
+          }`}
+        >
+          {item.label}
+        </a>
+      ))}
+    </div>
+    
+    <!-- Separador vertical -->
+    <div class="w-[1px] h-4 bg-cardBorder mx-1 hidden sm:block"></div>
+
     <!-- Botón de cambio de tema (Sol / Luna) -->
     <button 
       id="theme-toggle" 
       aria-label="Cambiar tema"
-      class="p-1 rounded-full text-textMain/75 hover:text-accent hover:bg-cardBorder transition-all flex items-center justify-center cursor-pointer ml-1"
+      class="shrink-0 p-1.5 rounded-full text-textMain/80 hover:text-accent hover:bg-cardBorder/50 transition-all flex items-center justify-center cursor-pointer"
     >
       <!-- Icono del Sol (Visible en modo Light) -->
       <svg id="theme-sun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
@@ -53,11 +92,12 @@
       }
     };
 
-    // Inicializar iconos
     updateIcons();
 
-    // Manejar Click
-    toggleBtn.addEventListener('click', () => {
+    toggleBtn.replaceWith(toggleBtn.cloneNode(true));
+    const newToggleBtn = document.getElementById('theme-toggle');
+
+    newToggleBtn?.addEventListener('click', () => {
       const isLight = document.documentElement.classList.contains('light');
       if (isLight) {
         document.documentElement.classList.remove('light');
@@ -67,13 +107,12 @@
         localStorage.setItem('theme', 'light');
       }
       updateIcons();
+      // Disparar evento para que los gráficos actualicen sus colores
+      window.dispatchEvent(new Event('themechange'));
     });
   };
 
-  // En Astro, los scripts se cargan con 'defer' de forma nativa.
-  // El DOM ya está listo cuando el script corre. Lo ejecutamos de inmediato.
   setupThemeToggle();
-
-  // También agregamos soporte para Astro View Transitions si se llegaran a activar
   document.addEventListener('astro:after-swap', setupThemeToggle);
+  document.addEventListener('astro:page-load', setupThemeToggle);
 </script>

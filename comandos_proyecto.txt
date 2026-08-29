@@ -1,0 +1,25 @@
+Comandos para iniciar el proyecto Portafolio-Astro
+
+1. Entrar a la carpeta del proyecto:
+cd "C:\Users\kevin\Documents\Proyectos de programacion\Astro\Portafolio-Astro"
+
+2. Instalar dependencias, solo si hace falta:
+corepack pnpm install
+
+3. Iniciar el proyecto en modo desarrollo:
+corepack pnpm dev
+
+4. Abrir en el navegador:
+http://localhost:4321
+
+5. Crear la version de produccion:
+corepack pnpm build
+
+6. Previsualizar la version de produccion:
+corepack pnpm preview
+
+Comandos alternativos con npm:
+npm install
+npm run dev
+npm run build
+npm run preview

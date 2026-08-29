@@ -2,106 +2,290 @@
 import Layout from "./layouts/Layout.astro";
 import Navbar from "./components/Navbar.astro";
 import { ContactController } from "../controllers/ContactController.js";
+
+const contactInfo = ContactController.getContactInfo();
 ---
 
-<Layout title="Contactar | Desarrollador Frontend">
+<Layout title="Contacto & Redes | Kevin Pérez">
   <Navbar />
 
-  <main class="min-h-screen relative flex items-center justify-center p-4">
-    <!-- Fondo de Pantalla Fijo con Capa Adaptativa -->
-    <div class="fixed inset-0 z-0">
-      <img
-        src="/contact-bg.png"
-        alt="Background Workspace"
-        class="w-full h-full object-cover"
-      />
-      <!-- Capa de color adaptativa (se adapta al color de fondo en opacidad) -->
-      <div class="absolute inset-0 bg-background/85 transition-colors duration-450"></div>
-    </div>
+  <main class="relative z-10 w-full pt-28 sm:pt-32 pb-16 md:pb-24 min-h-screen">
+    <!-- Ambient Light -->
+    <div class="absolute top-1/3 left-1/2 -translate-x-1/2 w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] rounded-full bg-accent/10 blur-[100px] sm:blur-[140px] pointer-events-none z-0"></div>
 
-    <!-- Formulario: Muy Centrado, Estilo Glassmorphism con Esquinas Redondeadas -->
-    <div
-      class="relative z-10 w-full max-w-[380px] p-8 md:p-10 rounded-[2.5rem] border border-cardBorder backdrop-blur-md bg-cardBg/30 shadow-[0_12px_40px_rgba(0,0,0,0.4)] flex flex-col justify-center reveal-on-scroll opacity-0 translate-y-10 transition-all duration-1000 ease-out"
-    >
-      <div class="text-center mb-8">
-        <h2 class="text-3xl font-black uppercase tracking-[0.1em] text-textMain mb-2">
-          Hablemos<span class="text-accent">.</span>
-        </h2>
-        <p class="text-textMuted text-xs font-light uppercase tracking-wider">Envíame un mensaje.</p>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 relative z-10 reveal-on-scroll">
+      
+      <!-- Contenedor Maestro Glassmorphic -->
+      <div class="w-full p-6 sm:p-10 md:p-14 rounded-3xl md:rounded-[2.5rem] glass-panel shadow-[0_15px_45px_rgba(0,0,0,0.5)]">
+        
+        <!-- Header -->
+        <div class="text-center mb-12">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-accent/30 bg-cardBg text-[10px] font-mono font-semibold text-accent mb-3">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
+            SYS.COMMS // DIRECT CHANNEL
+          </div>
+          <h1 class="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-[0.06em] text-textMain mb-3">
+            VAMOS A <span class="text-accent">CONVERSAR</span>
+          </h1>
+          <p class="text-xs sm:text-sm text-textMuted font-light max-w-lg mx-auto">
+            ¿Tienes un proyecto en mente o buscas un perfil especializado en Frontend & UI? Escríbeme y diseñemos algo extraordinario.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+          
+          <!-- Formulario de Contacto (7 Cols) -->
+          <div class="lg:col-span-7">
+            
+            <div id="form-alert" class="hidden mb-6 p-4 rounded-2xl text-xs font-bold transition-all"></div>
+
+            <form id="contact-form" class="flex flex-col gap-4">
+              <!-- Honeypot anti-spam -->
+              <input type="text" name="_gotcha" id="_gotcha" class="hidden" tabindex="-1" autocomplete="off" />
+
+              <div>
+                <label for="name" class="block text-xs font-mono font-bold uppercase tracking-wider text-textMain/90 mb-2">
+                  Nombre Completo
+                </label>
+                <input 
+                  type="text" 
+                  id="name" 
+                  name="name" 
+                  placeholder="Tu nombre o empresa"
+                  class="contact-input w-full px-4 py-3.5 rounded-2xl text-xs transition-all duration-200 outline-none"
+                  required
+                />
+                <span id="name-error" class="hidden text-[10px] font-mono text-rose-400 mt-1"></span>
+              </div>
+
+              <div>
+                <label for="email" class="block text-xs font-mono font-bold uppercase tracking-wider text-textMain/90 mb-2">
+                  Correo Electrónico
+                </label>
+                <input 
+                  type="email" 
+                  id="email" 
+                  name="email" 
+                  placeholder="ejemplo@correo.com"
+                  class="contact-input w-full px-4 py-3.5 rounded-2xl text-xs transition-all duration-200 outline-none"
+                  required
+                />
+                <span id="email-error" class="hidden text-[10px] font-mono text-rose-400 mt-1"></span>
+              </div>
+
+              <div>
+                <label for="message" class="block text-xs font-mono font-bold uppercase tracking-wider text-textMain/90 mb-2">
+                  Mensaje o Propuesta
+                </label>
+                <textarea 
+                  id="message" 
+                  name="message" 
+                  rows="4" 
+                  placeholder="Cuéntame sobre tu proyecto, requerimientos o vacante..."
+                  class="contact-input w-full px-4 py-3.5 rounded-2xl text-xs transition-all duration-200 outline-none resize-none"
+                  required
+                ></textarea>
+                <span id="message-error" class="hidden text-[10px] font-mono text-rose-400 mt-1"></span>
+              </div>
+
+              <button 
+                type="submit" 
+                id="submit-btn"
+                class="mt-2 w-full py-4 rounded-2xl bg-accent text-background font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-[0_0_25px_rgba(245,158,11,0.4)] cursor-pointer flex items-center justify-center gap-2"
+              >
+                <span id="submit-btn-text">Enviar Mensaje Directo</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"></path>
+                </svg>
+              </button>
+            </form>
+          </div>
+
+          <!-- Columna Lateral de Información y Redes (5 Cols) -->
+          <div class="lg:col-span-5 flex flex-col gap-4">
+            
+            <!-- Tarjeta de Copiado Rápido de Email -->
+            <div class="p-5 sm:p-6 rounded-3xl bg-background/50 border border-cardBorder flex flex-col gap-3">
+              <span class="text-[10px] uppercase tracking-widest font-mono text-accent font-bold">CANAL DIRECTO</span>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs sm:text-sm font-mono font-bold text-textMain break-all">{contactInfo.email}</span>
+                <button 
+                  id="copy-email-btn"
+                  data-email={contactInfo.email}
+                  class="p-2.5 rounded-xl bg-cardBg border border-cardBorder hover:border-accent/40 text-textMuted hover:text-accent transition-all cursor-pointer shrink-0"
+                  aria-label="Copiar correo"
+                  title="Copiar al portapapeles"
+                >
+                  <svg id="copy-icon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <svg id="check-icon" class="w-4 h-4 hidden text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- GitHub -->
+            <div class="flex items-center gap-4 p-4 rounded-2xl border border-cardBorder bg-background/40 hover:border-accent/40 transition-all duration-300 group">
+              <div class="w-12 h-12 rounded-xl bg-cardBg border border-cardBorder flex items-center justify-center text-accent group-hover:scale-105 transition-transform shrink-0">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <span class="block text-[10px] font-mono uppercase tracking-widest text-textMuted font-bold">GitHub</span>
+                <a href={contactInfo.socials.github} target="_blank" rel="noopener noreferrer" class="block text-sm font-bold text-textMain hover:text-accent transition-colors truncate">
+                  Kevin848572
+                </a>
+              </div>
+            </div>
+
+            <!-- LinkedIn -->
+            <div class="flex items-center gap-4 p-4 rounded-2xl border border-cardBorder bg-background/40 hover:border-accent/40 transition-all duration-300 group">
+              <div class="w-12 h-12 rounded-xl bg-cardBg border border-cardBorder flex items-center justify-center text-cyan-400 group-hover:scale-105 transition-transform shrink-0">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <span class="block text-[10px] font-mono uppercase tracking-widest text-textMuted font-bold">LinkedIn</span>
+                <a href={contactInfo.socials.linkedin} target="_blank" rel="noopener noreferrer" class="block text-sm font-bold text-textMain hover:text-cyan-400 transition-colors truncate">
+                  Kevin Pérez
+                </a>
+              </div>
+            </div>
+
+            <!-- Ubicación -->
+            <div class="flex items-center gap-4 p-4 rounded-2xl border border-cardBorder bg-background/40 group">
+              <div class="w-12 h-12 rounded-xl bg-cardBg border border-cardBorder flex items-center justify-center text-emerald-400 shrink-0">
+                <span class="material-icons-outlined text-xl">location_on</span>
+              </div>
+              <div class="min-w-0">
+                <span class="block text-[10px] font-mono uppercase tracking-widest text-textMuted font-bold">Ubicación</span>
+                <span class="block text-sm font-bold text-textMain">{contactInfo.location}</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
       </div>
-
-      <form class="flex flex-col gap-5">
-        <div>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            required
-            class="w-full bg-background/40 border border-cardBorder rounded-xl px-4 py-3.5 text-textMain focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm placeholder-textMuted/60"
-            placeholder="Nombre Completo"
-          />
-        </div>
-
-        <div>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            required
-            class="w-full bg-background/40 border border-cardBorder rounded-xl px-4 py-3.5 text-textMain focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm placeholder-textMuted/60"
-            placeholder="Correo Electrónico"
-          />
-        </div>
-
-        <div>
-          <textarea
-            id="message"
-            name="message"
-            rows="4"
-            required
-            class="w-full bg-background/40 border border-cardBorder rounded-xl px-4 py-3.5 text-textMain focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm resize-none placeholder-textMuted/60"
-            placeholder="Mensaje..."></textarea>
-        </div>
-
-        <button
-          type="submit"
-          class="w-full bg-accent text-background font-bold py-3.5 rounded-xl hover:bg-textMain hover:scale-[1.03] transition-all duration-300 text-sm mt-2 shadow-lg cursor-pointer"
-        >
-          Enviar Mensaje
-        </button>
-      </form>
-    </div>
-
-    <!-- Floating Star Sparkle -->
-    <div class="fixed bottom-8 right-8 z-30 pointer-events-none select-none animate-pulse">
-      <svg class="w-10 h-10 md:w-14 md:h-14 text-accent drop-shadow-[0_0_15px_rgba(212,175,55,0.6)]" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4L12 0Z" />
-      </svg>
     </div>
   </main>
 </Layout>
 
 <script>
-  const setupContactObserver = () => {
-    const observerOptions = {
-      root: null,
-      rootMargin: "0px",
-      threshold: 0.1,
-    };
+  import { ContactController } from "../controllers/ContactController.js";
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.remove("opacity-0", "translate-y-10");
-          entry.target.classList.add("opacity-100", "translate-y-0");
-          observer.unobserve(entry.target);
+  const setupContactView = () => {
+    const form = document.getElementById("contact-form") as HTMLFormElement | null;
+    const alertBox = document.getElementById("form-alert");
+    const nameInput = document.getElementById("name") as HTMLInputElement | null;
+    const emailInput = document.getElementById("email") as HTMLInputElement | null;
+    const messageInput = document.getElementById("message") as HTMLTextAreaElement | null;
+    const gotchaInput = document.getElementById("_gotcha") as HTMLInputElement | null;
+    const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement | null;
+    const btnText = document.getElementById("submit-btn-text");
+
+    const nameError = document.getElementById("name-error");
+    const emailError = document.getElementById("email-error");
+    const messageError = document.getElementById("message-error");
+
+    form?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      [nameError, emailError, messageError].forEach(el => el?.classList.add("hidden"));
+      if (alertBox) alertBox.className = "hidden mb-6 p-4 rounded-xl text-xs font-bold transition-all";
+
+      const formData = {
+        name: nameInput?.value || "",
+        email: emailInput?.value || "",
+        message: messageInput?.value || "",
+        _gotcha: gotchaInput?.value || ""
+      };
+
+      if (submitBtn) submitBtn.disabled = true;
+      if (btnText) btnText.textContent = "Enviando...";
+
+      try {
+        let result;
+        try {
+          const apiRes = await fetch("/api/contact", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData)
+          });
+          result = await apiRes.json();
+        } catch {
+          result = await ContactController.handleSubmission(formData);
         }
-      });
-    }, observerOptions);
 
-    const elements = document.querySelectorAll(".reveal-on-scroll");
-    elements.forEach((el) => observer.observe(el));
+        if (!result.success && result.errors) {
+          if (result.errors.name && nameError) {
+            nameError.textContent = result.errors.name;
+            nameError.classList.remove("hidden");
+          }
+          if (result.errors.email && emailError) {
+            emailError.textContent = result.errors.email;
+            emailError.classList.remove("hidden");
+          }
+          if (result.errors.message && messageError) {
+            messageError.textContent = result.errors.message;
+            messageError.classList.remove("hidden");
+          }
+        } else {
+          if (alertBox) {
+            alertBox.textContent = result.message || "¡Mensaje enviado con éxito! Me pondré en contacto contigo pronto.";
+            alertBox.className = "block mb-6 p-4 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+          }
+          form.reset();
+        }
+      } catch (err) {
+        if (alertBox) {
+          alertBox.textContent = "Ocurrió un error al intentar enviar el mensaje. Por favor intenta nuevamente.";
+          alertBox.className = "block mb-6 p-4 rounded-xl text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40";
+        }
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+        if (btnText) btnText.textContent = "Enviar Mensaje Directo";
+      }
+    });
+
+    const copyBtn = document.getElementById("copy-email-btn");
+    const copyIcon = document.getElementById("copy-icon");
+    const checkIcon = document.getElementById("check-icon");
+
+    copyBtn?.addEventListener("click", () => {
+      const email = copyBtn.getAttribute("data-email");
+      if (email) {
+        navigator.clipboard.writeText(email).then(() => {
+          copyIcon?.classList.add("hidden");
+          checkIcon?.classList.remove("hidden");
+
+          setTimeout(() => {
+            copyIcon?.classList.remove("hidden");
+            checkIcon?.classList.add("hidden");
+          }, 2000);
+        });
+      }
+    });
   };
 
-  document.addEventListener("DOMContentLoaded", setupContactObserver);
+  setupContactView();
+  document.addEventListener("astro:page-load", setupContactView);
 </script>
+
+<style>
+  .contact-input {
+    background-color: var(--input-bg);
+    color: var(--textMain);
+    border: 1px solid var(--card-border);
+  }
+
+  .contact-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+  }
+</style>

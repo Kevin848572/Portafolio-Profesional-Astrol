@@ -1,0 +1,60 @@
+---
+// Preloader.astro - Pantalla de carga interactiva con cortina de revelado y contador GSAP
+---
+
+<div id="preloader" class="fixed inset-0 z-[100] flex flex-col items-center justify-center pointer-events-auto select-none overflow-hidden" aria-hidden="true">
+  
+  <!-- Cortina Superior (Curtain Shutter Top) -->
+  <div id="preloader-curtain-top" class="absolute top-0 left-0 w-full h-1/2 bg-[#09090b] border-b border-accent/20 z-0 shadow-2xl flex items-end justify-center overflow-hidden">
+    <!-- Grid sutil de fondo tech -->
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#1f1f23_1px,transparent_1px),linear-gradient(to_bottom,#1f1f23_1px,transparent_1px)] bg-[size:32px_32px] opacity-20"></div>
+  </div>
+
+  <!-- Cortina Inferior (Curtain Shutter Bottom) -->
+  <div id="preloader-curtain-bottom" class="absolute bottom-0 left-0 w-full h-1/2 bg-[#09090b] border-t border-accent/20 z-0 shadow-2xl flex items-start justify-center overflow-hidden">
+    <!-- Grid sutil de fondo tech -->
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#1f1f23_1px,transparent_1px),linear-gradient(to_bottom,#1f1f23_1px,transparent_1px)] bg-[size:32px_32px] opacity-20"></div>
+  </div>
+
+  <!-- Contenido Central del Preloader -->
+  <div class="relative z-10 flex flex-col items-center justify-center gap-6 px-6 max-w-sm w-full text-center">
+    
+    <!-- Monograma Central con Pulso Glow -->
+    <div id="preloader-logo" class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl p-1 bg-gradient-to-br from-accent/40 via-cardBg to-accent/20 border border-accent/60 flex items-center justify-center shadow-[0_0_35px_rgba(212,175,55,0.35)]">
+      <div class="w-full h-full rounded-xl bg-[#09090b] flex items-center justify-center overflow-hidden">
+        <span class="font-black text-2xl sm:text-3xl tracking-tighter text-accent drop-shadow-[0_0_10px_rgba(212,175,55,0.7)]">
+          KP
+        </span>
+      </div>
+      <!-- Halo de pulso exterior -->
+      <div class="absolute -inset-1 rounded-2xl bg-accent/20 blur-md pointer-events-none -z-10 animate-pulse"></div>
+    </div>
+
+    <!-- Contador Porcentual Monoespaciado (00% -> 100%) -->
+    <div class="flex flex-col items-center gap-2">
+      <span id="preloader-number" class="text-4xl sm:text-5xl font-mono font-black tracking-wider text-textMain drop-shadow-[0_2px_15px_rgba(255,255,255,0.15)]">
+        00%
+      </span>
+      
+      <!-- Estado de Carga Tech / Cyberpunk Clean -->
+      <div class="flex items-center gap-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent animate-ping"></span>
+        <span id="preloader-status" class="text-[10px] sm:text-xs font-mono font-semibold tracking-widest text-accent uppercase">
+          INICIALIZANDO KERNEL...
+        </span>
+      </div>
+    </div>
+
+    <!-- Barra de Progreso Minimalista -->
+    <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden border border-white/5 p-[1px]">
+      <div id="preloader-progress-bar" class="h-full bg-gradient-to-r from-amber-500 via-accent to-yellow-200 rounded-full transition-all duration-75 shadow-[0_0_12px_rgba(212,175,55,0.8)]" style="width: 0%;"></div>
+    </div>
+
+    <!-- Pie de página técnico de preloader -->
+    <div class="text-[9px] font-mono text-textMuted/60 uppercase tracking-widest flex items-center justify-between w-full pt-2 border-t border-white/5">
+      <span>SYS://KEVIN_PEREZ</span>
+      <span>V2.6.0</span>
+    </div>
+
+  </div>
+</div>

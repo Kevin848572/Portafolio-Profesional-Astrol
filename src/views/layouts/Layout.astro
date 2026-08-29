@@ -1,12 +1,18 @@
 ---
 import '../../styles/global.css';
+import { ViewTransitions } from 'astro:transitions';
+import Preloader from '../components/Preloader.astro';
 
 interface Props {
   title: string;
   description?: string;
 }
 
-const { title, description = "Portafolio de desarrollo web premium y minimalista." } = Astro.props;
+const { 
+  title, 
+  description = "Portafolio profesional de Kevin Pérez | Desarrollador Frontend y UI Specialist especializado en interfaces web modernas de alto rendimiento, arquitectura glassmorphic y dashboards analíticos con Astro, React y Tailwind CSS." 
+} = Astro.props;
+const siteUrl = Astro.url.origin;
 ---
 
 <!doctype html>
@@ -14,30 +20,84 @@ const { title, description = "Portafolio de desarrollo web premium y minimalista
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <!-- Google Fonts: Inter -->
+    
+    <!-- SEO & OpenGraph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url.href} />
+    <meta property="og:image" content="/logo.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Material Icons Outlined -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" />
+
+    <!-- Chart.js CDN -->
+    <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
     <title>{title}</title>
     
-    <!-- Script inline para prevenir destellos y cargar el tema guardado -->
+    <ViewTransitions />
+
     <script is:inline>
-      const theme = localStorage.getItem('theme') || 'dark';
-      if (theme === 'light') {
-        document.documentElement.classList.add('light');
-      } else {
-        document.documentElement.classList.remove('light');
+      function applySavedTheme() {
+        const theme = localStorage.getItem('theme') || 'dark';
+        if (theme === 'light') {
+          document.documentElement.classList.add('light');
+        } else {
+          document.documentElement.classList.remove('light');
+        }
       }
+      applySavedTheme();
+      document.addEventListener('astro:after-swap', applySavedTheme);
     </script>
   </head>
   <body class="bg-background text-textMain antialiased relative min-h-screen transition-colors duration-300">
-    <!-- Luces de neón difusas en el fondo (acordes al tema) -->
-    <div class="pointer-events-none fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-accent/5 blur-[120px] z-[-1] opacity-70"></div>
-    <div class="pointer-events-none fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-accent/5 blur-[120px] z-[-1] opacity-70"></div>
     
+    <!-- Preloader -->
+    <Preloader />
+
+    <!-- Contenido Principal -->
     <slot />
+
+    <!-- Botón Flotante de Instagram 3D Glass -->
+    <a 
+      href="https://www.instagram.com/kevin_perez52?utm_source=qr&igsh=MWJ0aTF1dTZtbGZtaA==" 
+      target="_blank" 
+      rel="noopener noreferrer" 
+      class="fixed bottom-5 right-5 md:bottom-8 md:right-8 z-40 select-none hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer block group transform-gpu"
+      aria-label="Perfil de Instagram de Kevin Pérez"
+      title="Sígueme en Instagram"
+    >
+      <div class="relative p-3.5 rounded-2xl glass-card border border-blue-500/40 shadow-[0_0_25px_rgba(0,102,255,0.3)] group-hover:border-blue-400 group-hover:shadow-[0_0_35px_rgba(0,102,255,0.6)] transition-all duration-300">
+        <svg class="relative z-10 w-6 h-6 text-blue-400 drop-shadow-[0_2px_8px_rgba(0,102,255,0.6)] group-hover:drop-shadow-[0_4px_16px_rgba(0,102,255,0.9)] transition-all duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+        </svg>
+      </div>
+    </a>
+
+    <!-- Scripts de Animaciones -->
+    <script>
+      import { initAllAnimations, cleanupAnimations } from '../../scripts/animations.js';
+
+      const setupAnimations = () => {
+        initAllAnimations();
+      };
+
+      document.addEventListener('astro:page-load', setupAnimations);
+      document.addEventListener('astro:before-swap', cleanupAnimations);
+    </script>
   </body>
 </html>

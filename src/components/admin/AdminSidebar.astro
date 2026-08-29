@@ -1,0 +1,60 @@
+---
+const pathname = Astro.url.pathname;
+
+const menuItems = [
+  { href: '/admin', icon: 'dashboard', label: 'Dashboard' },
+  { href: '/admin/proyectos', icon: 'folder', label: 'Proyectos' },
+  { href: '/admin/habilidades', icon: 'psychology', label: 'Habilidades' },
+  { href: '/admin/experiencia', icon: 'work', label: 'Experiencia' },
+  { href: '/admin/perfil', icon: 'person', label: 'Perfil' },
+];
+
+const isActive = (href: string) => {
+  if (href === '/admin') return pathname === '/admin' || pathname === '/admin/';
+  return pathname.startsWith(href);
+};
+---
+
+<aside class="fixed top-0 left-0 h-screen w-[var(--sidebar-width)] z-40 flex flex-col transition-all duration-300"
+  style="background: var(--card-bg); backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%); border-right: 1px solid var(--card-border);">
+  
+  <!-- Logo -->
+  <div class="px-6 py-5 flex items-center gap-3" style="border-bottom: 1px solid var(--card-border);">
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm"
+      style="background: rgba(var(--accent-rgb), 0.15); color: var(--accent); border: 1px solid rgba(var(--accent-rgb), 0.3); box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.2);">
+      KP
+    </div>
+    <div>
+      <p class="font-bold text-sm" style="color: var(--textMain);">Admin Panel</p>
+      <p class="text-xs" style="color: var(--textMuted);">Kevin Pérez</p>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto no-scrollbar">
+    {menuItems.map(item => (
+      <a
+        href={item.href}
+        class={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${
+          isActive(item.href) ? '' : 'hover:opacity-80'
+        }`}
+        style={isActive(item.href)
+          ? `background: rgba(var(--accent-rgb), 0.15); color: var(--accent); border: 1px solid rgba(var(--accent-rgb), 0.3); box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.15); backdrop-filter: blur(10px);`
+          : `color: var(--textMuted); border: 1px solid transparent;`
+        }
+      >
+        <span class="material-icons-outlined text-[20px]">{item.icon}</span>
+        <span>{item.label}</span>
+      </a>
+    ))}
+  </nav>
+
+  <!-- Footer -->
+  <div class="px-4 py-4" style="border-top: 1px solid var(--card-border);">
+    <a href="/" target="_blank" class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all hover:opacity-80"
+      style="color: var(--textMuted);">
+      <span class="material-icons-outlined text-[16px]">open_in_new</span>
+      Ver portafolio
+    </a>
+  </div>
+</aside>

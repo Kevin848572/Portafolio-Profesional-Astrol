@@ -7,10 +7,16 @@ export class ProfileController {
   static getHeroData() {
     const profile = ProfileModel.getProfile();
     return {
+      name: profile.name,
+      role: profile.role,
+      status: profile.status,
       title: profile.title,
       subtitle: profile.subtitle,
       imageUrl: profile.imageUrl,
-      email: profile.email
+      email: profile.email,
+      cvUrl: profile.cvUrl,
+      stats: profile.stats,
+      socials: profile.socials
     };
   }
 
@@ -21,6 +27,7 @@ export class ProfileController {
     const profile = ProfileModel.getProfile();
     return {
       email: profile.email,
+      location: profile.location,
       socials: profile.socials
     };
   }
@@ -29,9 +36,12 @@ export class ProfileController {
    * Obtiene la información necesaria para el pie de página (footer).
    */
   static getFooterData() {
+    const profile = ProfileModel.getProfile();
     return {
       year: new Date().getFullYear(),
-      copyText: "Desarrollador Frontend. Todos los derechos reservados."
+      name: profile.name,
+      copyText: `${profile.name} — Desarrollador Frontend. Todos los derechos reservados.`
     };
   }
 }
+

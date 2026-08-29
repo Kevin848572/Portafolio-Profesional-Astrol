@@ -15,6 +15,22 @@ pnpm-debug.log*
 .env
 .env.production
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+*.log
+.mypy_cache/
+.pytest_cache/
+
 # OS metadata
 .DS_Store
 Thumbs.db

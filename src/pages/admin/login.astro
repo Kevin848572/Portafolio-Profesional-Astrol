@@ -1,0 +1,118 @@
+---
+import AdminLayout from '../../components/admin/AdminLayout.astro';
+---
+
+<AdminLayout title="Iniciar Sesión">
+  <div class="min-h-screen flex items-center justify-center px-4">
+    <div class="w-full max-w-md">
+      <!-- Logo -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
+          style="background: rgba(var(--accent-rgb), 0.15); border: 1px solid rgba(var(--accent-rgb), 0.3); box-shadow: 0 0 30px rgba(var(--accent-rgb), 0.2); backdrop-filter: blur(20px);">
+          <span class="font-black text-xl" style="color: var(--accent);">KP</span>
+        </div>
+        <h1 class="text-2xl font-black" style="color: var(--textMain);">Admin Panel</h1>
+        <p class="text-sm mt-1" style="color: var(--textMuted);">Ingresa tus credenciales para acceder</p>
+      </div>
+
+      <!-- Login Form -->
+      <div class="admin-card p-8">
+        <form id="login-form" class="space-y-5">
+          <div>
+            <label class="block text-xs font-semibold mb-2 uppercase tracking-wider" style="color: var(--textMuted);">
+              Usuario
+            </label>
+            <input
+              type="text"
+              id="username"
+              class="admin-input"
+              placeholder="admin"
+              required
+              autocomplete="username"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold mb-2 uppercase tracking-wider" style="color: var(--textMuted);">
+              Contraseña
+            </label>
+            <input
+              type="password"
+              id="password"
+              class="admin-input"
+              placeholder="••••••••"
+              required
+              autocomplete="current-password"
+            />
+          </div>
+
+          <div id="error-message" class="hidden text-sm font-medium px-4 py-3 rounded-xl"
+            style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.25); backdrop-filter: blur(10px);">
+          </div>
+
+          <button type="submit" id="login-btn" class="btn-primary w-full flex items-center justify-center gap-2">
+            <span class="material-icons-outlined text-[18px]">login</span>
+            Iniciar Sesión
+          </button>
+        </form>
+      </div>
+
+      <p class="text-center text-xs mt-6" style="color: var(--textMuted);">
+        <a href="/" class="hover:underline transition-colors duration-300" style="color: var(--accent);">← Volver al portafolio</a>
+      </p>
+    </div>
+  </div>
+</AdminLayout>
+
+<script is:inline>
+  function setupLoginForm() {
+    const token = localStorage.getItem('admin_token');
+    if (token) {
+      window.location.href = '/admin';
+      return;
+    }
+
+    const form = document.getElementById('login-form');
+    const errorMsg = document.getElementById('error-message');
+    const loginBtn = document.getElementById('login-btn');
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      errorMsg.style.display = 'none';
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<span class="material-icons-outlined text-[18px] animate-spin">refresh</span> Entrando...';
+
+      try {
+        const API_URL = window.PUBLIC_API_URL || '';
+        const response = await fetch(`${API_URL}/api/auth/login`, {
+
+
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.detail || 'Credenciales incorrectas');
+        }
+
+        localStorage.setItem('admin_token', data.access_token);
+        window.location.href = '/admin';
+      } catch (error) {
+        errorMsg.textContent = error.message;
+        errorMsg.style.display = 'block';
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<span class="material-icons-outlined text-[18px]">login</span> Iniciar Sesión';
+      }
+    });
+  }
+
+  setupLoginForm();
+  document.addEventListener('astro:page-load', setupLoginForm);
+</script>
