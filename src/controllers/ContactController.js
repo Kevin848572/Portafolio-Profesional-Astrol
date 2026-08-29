@@ -53,7 +53,8 @@ export class ContactController {
         if (result.success) {
           return {
             success: true,
-            message: '¡Mensaje enviado con éxito a kp389301@gmail.com! Me pondré en contacto contigo en breve.'
+            message: '¡Mensaje enviado con éxito a kevinperezzz5000@gmail.com! Me pondré en contacto contigo en breve.'
+
           };
         }
       }
