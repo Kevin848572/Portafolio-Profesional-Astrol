@@ -177,8 +177,6 @@ const contactInfo = ContactController.getContactInfo();
 </Layout>
 
 <script>
-  import { ContactController } from "../controllers/ContactController.js";
-
   const setupContactView = () => {
     const form = document.getElementById("contact-form") as HTMLFormElement | null;
     const alertBox = document.getElementById("form-alert");
@@ -210,17 +208,12 @@ const contactInfo = ContactController.getContactInfo();
       if (btnText) btnText.textContent = "Enviando...";
 
       try {
-        let result;
-        try {
-          const apiRes = await fetch("/api/contact", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formData)
-          });
-          result = await apiRes.json();
-        } catch {
-          result = await ContactController.handleSubmission(formData);
-        }
+        const apiRes = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        });
+        const result = await apiRes.json();
 
         if (!result.success && result.errors) {
           if (result.errors.name && nameError) {
@@ -235,12 +228,14 @@ const contactInfo = ContactController.getContactInfo();
             messageError.textContent = result.errors.message;
             messageError.classList.remove("hidden");
           }
-        } else {
+        } else if (result.success) {
           if (alertBox) {
             alertBox.textContent = result.message || "¡Mensaje enviado con éxito! Me pondré en contacto contigo pronto.";
             alertBox.className = "block mb-6 p-4 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
           }
           form.reset();
+        } else {
+          throw new Error(result.message || "Error al procesar");
         }
       } catch (err) {
         if (alertBox) {
