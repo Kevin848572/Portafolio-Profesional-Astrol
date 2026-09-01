@@ -47,7 +47,16 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
     <!-- Quick Actions -->
     <div class="admin-card p-6 mb-8">
       <h2 class="text-lg font-bold mb-4" style="color: var(--textMain);">Acciones Rápidas</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <a href="/admin/mensajes" class="flex items-center gap-3 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02]"
+          style="background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(10px);">
+          <span class="material-icons-outlined text-[24px]" style="color: #a78bfa;">email</span>
+          <div>
+            <p class="font-semibold text-sm" style="color: var(--textMain);">Mensajes</p>
+            <p class="text-xs" style="color: var(--textMuted);">Contactos Supabase</p>
+          </div>
+        </a>
+
         <a href="/admin/proyectos" class="flex items-center gap-3 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02]"
           style="background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(10px);">
           <span class="material-icons-outlined text-[24px]" style="color: var(--accent);">add_circle</span>

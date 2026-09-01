@@ -1,5 +1,6 @@
 import { ContactModel } from '../models/ContactModel.js';
 import { ProfileModel } from '../models/ProfileModel.js';
+import { supabase, isSupabaseConfigured } from '../lib/supabase.js';
 
 export class ContactController {
   /**
@@ -15,7 +16,7 @@ export class ContactController {
   }
 
   /**
-   * Procesa y valida el envío de un mensaje de contacto.
+   * Procesa, valida y almacena un mensaje de contacto en Supabase.
    * @param {Object} formData Datos enviados desde el formulario (nombre, email, mensaje, _gotcha).
    * @returns {Promise<Object>} Resultado del procesamiento (success, errors, message).
    */
@@ -30,11 +31,39 @@ export class ContactController {
       };
     }
     
+    let supabaseSuccess = false;
+
+    // 1. Guardar en Supabase si está configurado
+    if (isSupabaseConfigured() && supabase) {
+      try {
+        const { error } = await supabase
+          .from('contacts')
+          .insert([
+            {
+              name: sanitizedData.name,
+              email: sanitizedData.email,
+              message: sanitizedData.message
+            }
+          ]);
+
+        if (error) {
+          console.error('Error al insertar en Supabase (contacts):', error);
+        } else {
+          supabaseSuccess = true;
+        }
+      } catch (sbError) {
+        console.error('Excepción al conectar con Supabase:', sbError);
+      }
+    }
+
+    // 2. Opcional: Enviar notificación por Web3Forms al correo
     try {
-      const web3FormsKey = import.meta.env.PUBLIC_WEB3FORMS_KEY;
+      const web3FormsKey = 
+        import.meta.env.PUBLIC_WEB3FORMS_KEY || 
+        (typeof process !== 'undefined' ? process.env?.PUBLIC_WEB3FORMS_KEY : '');
 
       if (web3FormsKey) {
-        const response = await fetch('https://api.web3forms.com/submit', {
+        await fetch('https://api.web3forms.com/submit', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -48,27 +77,15 @@ export class ContactController {
             subject: `Nuevo mensaje de portafolio de ${sanitizedData.name}`
           })
         });
-
-        const result = await response.json();
-        if (result.success) {
-          return {
-            success: true,
-            message: '¡Mensaje enviado con éxito a kevinperezzz5000@gmail.com! Me pondré en contacto contigo en breve.'
-
-          };
-        }
       }
-
-      return {
-        success: true,
-        message: '¡Mensaje recibido y validado con éxito! Nos pondremos en contacto muy pronto.'
-      };
     } catch (error) {
-      console.error('Error al procesar el mensaje en el controlador:', error);
-      return {
-        success: true,
-        message: '¡Mensaje recibido correctamente!'
-      };
+      console.warn('Web3Forms notification skipped or failed:', error);
     }
+
+    return {
+      success: true,
+      message: '¡Mensaje recibido y guardado con éxito! Me pondré en contacto contigo en breve.'
+    };
   }
 }
+

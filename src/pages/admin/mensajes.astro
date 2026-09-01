@@ -1,0 +1,176 @@
+---
+import AdminLayout from '../../components/admin/AdminLayout.astro';
+import AdminSidebar from '../../components/admin/AdminSidebar.astro';
+import AdminNavbar from '../../components/admin/AdminNavbar.astro';
+---
+
+<AdminLayout title="Mensajes de Contacto">
+  <AdminSidebar />
+  <AdminNavbar title="Mensajes Recibidos" />
+
+  <main class="ml-[var(--sidebar-width)] pt-20 px-8 pb-12 min-h-screen transition-all duration-300">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <p class="text-sm" style="color: var(--textMuted);">Mensajes y propuestas de clientes guardados en Supabase</p>
+      </div>
+      <button 
+        id="btn-refresh" 
+        class="admin-btn-secondary flex items-center gap-2 text-xs py-2 px-3 rounded-xl cursor-pointer"
+        style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--textMain);"
+        title="Recargar mensajes"
+      >
+        <span class="material-icons-outlined text-sm">refresh</span>
+        Actualizar
+      </button>
+    </div>
+
+    <!-- Alert / Status -->
+    <div id="messages-alert" class="hidden mb-6 p-4 rounded-xl text-xs font-semibold"></div>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="admin-card p-12 text-center">
+      <div class="inline-block animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full mb-3"></div>
+      <p class="text-xs font-mono" style="color: var(--textMuted);">Cargando mensajes desde Supabase...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden admin-card p-12 text-center">
+      <span class="material-icons-outlined text-4xl mb-3" style="color: var(--textMuted);">mark_email_read</span>
+      <h3 class="text-base font-bold mb-1" style="color: var(--textMain);">No hay mensajes registrados</h3>
+      <p class="text-xs max-w-sm mx-auto" style="color: var(--textMuted);">
+        Los mensajes que tus visitantes envíen a través del formulario de contacto aparecerán aquí y en Supabase.
+      </p>
+    </div>
+
+    <!-- Messages List -->
+    <div id="messages-list" class="space-y-4"></div>
+  </main>
+</AdminLayout>
+
+<script>
+  import { requireAuth, authFetch } from '../../scripts/admin-auth';
+
+  requireAuth();
+
+  const listEl = document.getElementById('messages-list');
+  const loadingEl = document.getElementById('loading-state');
+  const emptyEl = document.getElementById('empty-state');
+  const alertEl = document.getElementById('messages-alert');
+  const refreshBtn = document.getElementById('btn-refresh');
+
+  const showAlert = (msg: string, isError = false) => {
+    if (!alertEl) return;
+    alertEl.textContent = msg;
+    alertEl.className = `block mb-6 p-4 rounded-xl text-xs font-semibold ${
+      isError ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+    }`;
+  };
+
+  const loadMessages = async () => {
+    if (loadingEl) loadingEl.classList.remove('hidden');
+    if (emptyEl) emptyEl.classList.add('hidden');
+    if (listEl) listEl.innerHTML = '';
+
+    try {
+      const res = await authFetch('/api/messages');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || errData.detail || 'Error al obtener mensajes');
+      }
+
+      const messages = await res.json();
+
+      if (loadingEl) loadingEl.classList.add('hidden');
+
+      if (!messages || messages.length === 0) {
+        if (emptyEl) emptyEl.classList.remove('hidden');
+        return;
+      }
+
+      renderMessages(messages);
+    } catch (err: any) {
+      if (loadingEl) loadingEl.classList.add('hidden');
+      showAlert(err.message || 'Error de conexión con Supabase', true);
+    }
+  };
+
+  const renderMessages = (messages: any[]) => {
+    if (!listEl) return;
+    listEl.innerHTML = '';
+
+    messages.forEach((msg) => {
+      const dateStr = msg.created_at 
+        ? new Date(msg.created_at).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' })
+        : 'Reciente';
+
+      const card = document.createElement('div');
+      card.className = 'admin-card p-6 transition-all duration-300 hover:border-accent/30';
+      card.innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-cardBorder">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs" style="background: rgba(var(--accent-rgb), 0.15); color: var(--accent);">
+              ${(msg.name || 'U').charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <h3 class="font-bold text-sm" style="color: var(--textMain);">${escapeHtml(msg.name || 'Anónimo')}</h3>
+              <a href="mailto:${escapeHtml(msg.email)}" class="text-xs hover:underline flex items-center gap-1" style="color: var(--accent);">
+                ${escapeHtml(msg.email)}
+              </a>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-background/50" style="color: var(--textMuted);">
+              ${dateStr}
+            </span>
+            <button 
+              data-id="${msg.id}" 
+              class="btn-delete-msg p-2 rounded-lg hover:bg-rose-500/20 text-textMuted hover:text-rose-400 transition-colors cursor-pointer"
+              title="Eliminar mensaje"
+            >
+              <span class="material-icons-outlined text-base">delete</span>
+            </button>
+          </div>
+        </div>
+        <p class="text-xs leading-relaxed whitespace-pre-wrap" style="color: var(--textMain);">
+          ${escapeHtml(msg.message || '')}
+        </p>
+      `;
+
+      listEl.appendChild(card);
+    });
+
+    // Attach delete listeners
+    document.querySelectorAll('.btn-delete-msg').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        const id = (e.currentTarget as HTMLElement).getAttribute('data-id');
+        if (!id) return;
+        if (!confirm('¿Estás seguro de que deseas eliminar este mensaje?')) return;
+
+        try {
+          const res = await authFetch(`/api/messages?id=${id}`, {
+            method: 'DELETE'
+          });
+
+          if (res.ok) {
+            showAlert('Mensaje eliminado correctamente');
+            loadMessages();
+          } else {
+            const data = await res.json().catch(() => ({}));
+            showAlert(data.detail || 'Error al eliminar', true);
+          }
+        } catch (err: any) {
+          showAlert(err.message || 'Error al eliminar', true);
+        }
+      });
+    });
+  };
+
+  function escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  refreshBtn?.addEventListener('click', loadMessages);
+  loadMessages();
+</script>
