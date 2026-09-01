@@ -47,8 +47,38 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
   </main>
 </AdminLayout>
 
-<script>
-  import { requireAuth, authFetch } from '../../scripts/admin-auth';
+<script is:inline>
+  function getToken() {
+    return localStorage.getItem('admin_token');
+  }
+
+  function requireAuth() {
+    if (!getToken()) {
+      window.location.href = '/admin/login';
+    }
+  }
+
+  async function authFetch(endpoint, options = {}) {
+    const token = getToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      ...(options.headers || {})
+    };
+
+    const res = await fetch(endpoint, {
+      ...options,
+      headers
+    });
+
+    if (res.status === 401) {
+      localStorage.removeItem('admin_token');
+      window.location.href = '/admin/login';
+      throw new Error('Token expirado');
+    }
+
+    return res;
+  }
 
   requireAuth();
 
@@ -58,15 +88,15 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
   const alertEl = document.getElementById('messages-alert');
   const refreshBtn = document.getElementById('btn-refresh');
 
-  const showAlert = (msg: string, isError = false) => {
+  function showAlert(msg, isError = false) {
     if (!alertEl) return;
     alertEl.textContent = msg;
     alertEl.className = `block mb-6 p-4 rounded-xl text-xs font-semibold ${
       isError ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
     }`;
-  };
+  }
 
-  const loadMessages = async () => {
+  async function loadMessages() {
     if (loadingEl) loadingEl.classList.remove('hidden');
     if (emptyEl) emptyEl.classList.add('hidden');
     if (listEl) listEl.innerHTML = '';
@@ -88,13 +118,13 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
       }
 
       renderMessages(messages);
-    } catch (err: any) {
+    } catch (err) {
       if (loadingEl) loadingEl.classList.add('hidden');
       showAlert(err.message || 'Error de conexión con Supabase', true);
     }
-  };
+  }
 
-  const renderMessages = (messages: any[]) => {
+  function renderMessages(messages) {
     if (!listEl) return;
     listEl.innerHTML = '';
 
@@ -139,10 +169,10 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
       listEl.appendChild(card);
     });
 
-    // Attach delete listeners
+    // Delete listeners
     document.querySelectorAll('.btn-delete-msg').forEach((btn) => {
       btn.addEventListener('click', async (e) => {
-        const id = (e.currentTarget as HTMLElement).getAttribute('data-id');
+        const id = e.currentTarget.getAttribute('data-id');
         if (!id) return;
         if (!confirm('¿Estás seguro de que deseas eliminar este mensaje?')) return;
 
@@ -158,19 +188,22 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
             const data = await res.json().catch(() => ({}));
             showAlert(data.detail || 'Error al eliminar', true);
           }
-        } catch (err: any) {
+        } catch (err) {
           showAlert(err.message || 'Error al eliminar', true);
         }
       });
     });
-  };
+  }
 
-  function escapeHtml(text: string): string {
+  function escapeHtml(text) {
     const div = document.createElement('div');
-    div.textContent = text;
+    div.textContent = text || '';
     return div.innerHTML;
   }
 
   refreshBtn?.addEventListener('click', loadMessages);
+  document.addEventListener('astro:page-load', () => {
+    if (getToken()) loadMessages();
+  });
   loadMessages();
 </script>
