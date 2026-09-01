@@ -1,6 +1,7 @@
 import { ContactModel } from '../models/ContactModel.js';
 import { ProfileModel } from '../models/ProfileModel.js';
 import { supabase, isSupabaseConfigured } from '../lib/supabase.js';
+import pool from '../lib/db';
 
 export class ContactController {
   /**
@@ -16,7 +17,7 @@ export class ContactController {
   }
 
   /**
-   * Procesa, valida y almacena un mensaje de contacto en Supabase.
+   * Procesa, valida y almacena un mensaje de contacto en Supabase / PostgreSQL.
    * @param {Object} formData Datos enviados desde el formulario (nombre, email, mensaje, _gotcha).
    * @returns {Promise<Object>} Resultado del procesamiento (success, errors, message).
    */
@@ -31,9 +32,9 @@ export class ContactController {
       };
     }
     
-    let supabaseSuccess = false;
+    let saved = false;
 
-    // 1. Guardar en Supabase si está configurado
+    // 1. Guardar vía Supabase SDK si está configurado
     if (isSupabaseConfigured() && supabase) {
       try {
         const { error } = await supabase
@@ -46,17 +47,30 @@ export class ContactController {
             }
           ]);
 
-        if (error) {
-          console.error('Error al insertar en Supabase (contacts):', error);
+        if (!error) {
+          saved = true;
         } else {
-          supabaseSuccess = true;
+          console.error('Error con Supabase SDK (intentando fallback a DB):', error);
         }
       } catch (sbError) {
-        console.error('Excepción al conectar con Supabase:', sbError);
+        console.warn('Excepción Supabase SDK:', sbError);
       }
     }
 
-    // 2. Opcional: Enviar notificación por Web3Forms al correo
+    // 2. Si no se guardó con SDK, guardar vía PostgreSQL pool (DATABASE_URL)
+    if (!saved) {
+      try {
+        await pool.query(
+          'INSERT INTO contacts (name, email, message) VALUES ($1, $2, $3)',
+          [sanitizedData.name, sanitizedData.email, sanitizedData.message]
+        );
+        saved = true;
+      } catch (dbError) {
+        console.error('Error al insertar en DB pool contacts:', dbError);
+      }
+    }
+
+    // 3. Opcional: Enviar notificación por Web3Forms al correo
     try {
       const web3FormsKey = 
         import.meta.env.PUBLIC_WEB3FORMS_KEY || 
@@ -88,4 +102,3 @@ export class ContactController {
     };
   }
 }
-
