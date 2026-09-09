@@ -92,7 +92,7 @@ export class ProjectModel {
         longDesc: "Plataforma integral de gestión automotriz desarrollada con Angular 18, arquitectura modular y diseño Neobrutalism. Permite el control completo del ciclo de vida del vehículo en taller: ingreso y fichas técnicas, asignación de mecánicos, diagnóstico de fallas, inventario de repuestos, órdenes de trabajo con cálculo de costos y reportes operativos.",
         category: "Fullstack",
         tags: ["Angular 18", "TypeScript", "Neobrutalism UI", "Gestión de Flota", "PostgREST"],
-        image: "https://images.unsplash.com/photo-1486006920555-c77dce18193b?q=80&w=800&auto=format&fit=crop",
+        image: "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?q=80&w=800&auto=format&fit=crop",
         demoUrl: "https://prototipo-taller-mecanico-1.vercel.app/#/",
         githubUrl: "https://github.com/Kevin848572/Prototipo-taller-mecanico",
         featured: false
