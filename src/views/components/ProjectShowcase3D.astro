@@ -140,9 +140,12 @@ const {
               href={project.demoUrl || project.githubUrl}
               target="_blank" 
               rel="noopener noreferrer" 
-              class="px-4 py-1.5 rounded-full bg-accent/15 border border-accent/40 text-accent font-bold text-[11px] uppercase tracking-wider hover:bg-accent hover:text-background transition-all duration-300 shadow-sm"
+              class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-accent text-background font-mono font-bold text-[11px] uppercase tracking-wider hover:scale-105 hover:shadow-[0_0_15px_rgba(245,158,11,0.5)] transition-all duration-300 shadow-sm"
             >
-              Explorar
+              <span>Ver Proyecto</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"></path>
+              </svg>
             </a>
           </div>
         </div>

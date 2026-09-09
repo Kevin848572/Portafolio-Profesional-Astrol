@@ -88,13 +88,17 @@ const footerData = ProfileController.getFooterData();
                   ))}
                 </div>
 
-                <!-- Botones de Enlaces Directos & Detalle -->
+                <!-- Botón Ver: Abre el modal desenfocado con más información del proyecto -->
                 <div class="flex items-center justify-between pt-3 border-t border-cardBorder/50">
                   <button 
                     data-modal-target={project.id}
-                    class="open-modal-btn text-xs font-bold text-accent hover:underline flex items-center gap-1 cursor-pointer font-mono"
+                    class="open-modal-btn inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-accent/15 border border-accent/40 text-accent hover:bg-accent hover:text-background text-xs font-bold font-mono tracking-wider cursor-pointer transition-all duration-300 shadow-sm hover:scale-105"
                   >
-                    <span>[ Detalles ]</span>
+                    <span>Ver</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
+                    </svg>
                   </button>
 
                   <div class="flex items-center gap-2">
@@ -103,6 +107,7 @@ const footerData = ProfileController.getFooterData();
                       target="_blank" 
                       rel="noopener noreferrer" 
                       aria-label={`GitHub de ${project.title}`}
+                      title="Ver código en GitHub"
                       class="p-2 rounded-xl bg-cardBg border border-cardBorder text-textMuted hover:text-accent hover:border-accent/40 transition-colors"
                     >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
@@ -121,10 +126,10 @@ const footerData = ProfileController.getFooterData();
     </section>
   </main>
 
-  <!-- Modal Interactivo para Detalles del Proyecto -->
+  <!-- Modal Interactivo para Detalles del Proyecto (Tarjeta Desenfocada) -->
   <div id="project-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl opacity-0 pointer-events-none transition-opacity duration-300">
-    <div class="relative w-full max-w-xl glass-panel bg-cardBg-solid sm:bg-cardBg rounded-3xl p-6 sm:p-8 shadow-2xl transition-transform duration-300 scale-95 max-h-[90vh] overflow-y-auto" id="modal-content">
-      <button id="close-modal-btn" class="absolute top-4 right-4 p-2 text-textMuted hover:text-accent rounded-full hover:bg-background transition-colors cursor-pointer" aria-label="Cerrar modal">
+    <div class="relative w-full max-w-xl glass-panel bg-cardBg-solid/95 sm:bg-cardBg/90 backdrop-blur-2xl border border-cardBorder rounded-3xl p-6 sm:p-8 shadow-2xl transition-transform duration-300 scale-95 max-h-[90vh] overflow-y-auto" id="modal-content">
+      <button id="close-modal-btn" class="absolute top-4 right-4 p-2 text-textMuted hover:text-accent rounded-full hover:bg-background/80 transition-colors cursor-pointer" aria-label="Cerrar modal">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -195,9 +200,18 @@ const footerData = ProfileController.getFooterData();
           ${proj.tags.map(t => `<span class="text-[10px] font-mono font-semibold px-2.5 py-0.5 bg-background border border-cardBorder rounded-full text-accent">${t}</span>`).join('')}
         </div>
 
-        <div class="flex items-center gap-3 mt-4 pt-4 border-t border-cardBorder">
-          <a href="${proj.githubUrl}" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 rounded-full bg-accent text-background font-bold text-xs uppercase tracking-wider hover:scale-105 transition-all shadow-[0_0_20px_rgba(245,158,11,0.4)]">
-            Ver Código en GitHub
+        <div class="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t border-cardBorder">
+          <a href="${proj.demoUrl}" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 rounded-full bg-accent text-background font-bold text-xs uppercase tracking-wider hover:scale-105 transition-all shadow-[0_0_20px_rgba(245,158,11,0.4)] inline-flex items-center gap-2">
+            <span>Ver Proyecto en Vivo</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
+          </a>
+          <a href="${proj.githubUrl}" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 rounded-full bg-cardBg border border-cardBorder text-textMain font-bold text-xs uppercase tracking-wider hover:border-accent hover:text-accent transition-all inline-flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+            </svg>
+            <span>Código en GitHub</span>
           </a>
         </div>
       `;
@@ -225,6 +239,9 @@ const footerData = ProfileController.getFooterData();
     closeModalBtn?.addEventListener('click', closeModal);
     modal?.addEventListener('click', (e) => {
       if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
     });
   };
 

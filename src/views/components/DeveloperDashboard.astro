@@ -261,15 +261,28 @@ const statusMap: Record<string, { label: string; badgeClass: string }> = {
                     </span>
                   </td>
                   <td class="py-3.5 pl-4 text-right">
-                    <a 
-                      href={proj.githubUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      class="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-cardBg border border-cardBorder hover:border-blue-500/50 hover:text-blue-400 text-xs font-semibold text-textMuted transition-all"
-                    >
-                      <span>GitHub</span>
-                      <span class="material-icons-outlined text-xs">open_in_new</span>
-                    </a>
+                    <div class="inline-flex items-center gap-1.5 justify-end">
+                      <a 
+                        href={proj.demoUrl || proj.githubUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        title={`Ver proyecto ${proj.title}`}
+                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-blue-600/15 border border-blue-500/30 text-blue-400 hover:bg-blue-600 hover:text-white text-xs font-semibold transition-all"
+                      >
+                        <span>Demo</span>
+                        <span class="material-icons-outlined text-xs">launch</span>
+                      </a>
+                      <a 
+                        href={proj.githubUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        title="Ver repositorio en GitHub"
+                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-cardBg border border-cardBorder hover:border-blue-500/50 hover:text-blue-400 text-xs font-semibold text-textMuted transition-all"
+                      >
+                        <span>GitHub</span>
+                        <span class="material-icons-outlined text-xs">open_in_new</span>
+                      </a>
+                    </div>
                   </td>
                 </tr>
               );
