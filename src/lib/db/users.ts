@@ -1,5 +1,4 @@
 import pool from '../db.ts';
-import bcrypt from 'bcryptjs';
 
 export interface User {
   id: number;
@@ -45,6 +44,8 @@ export async function authenticateUser(username: string, password: string): Prom
     const user = await getUserByUsername(username);
     if (!user || !user.is_active || !user.hashed_password) return null;
     
+    const bcryptModule = await import('bcryptjs');
+    const bcrypt = bcryptModule.default || bcryptModule;
     const matches = bcrypt.compareSync(password, user.hashed_password);
     if (!matches) return null;
     
@@ -55,7 +56,8 @@ export async function authenticateUser(username: string, password: string): Prom
 }
 
 export async function createUser(username: string, password: string): Promise<User> {
-
+  const bcryptModule = await import('bcryptjs');
+  const bcrypt = bcryptModule.default || bcryptModule;
   const hashed = bcrypt.hashSync(password, 10);
   const result = await pool.query(
     'INSERT INTO users (username, hashed_password, is_active) VALUES ($1, $2, $3) RETURNING *',
