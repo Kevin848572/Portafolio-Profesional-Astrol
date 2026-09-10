@@ -6,7 +6,7 @@ export class ProfileModel {
       status: "Disponible para proyectos",
       title: "Creando Experiencias Digitales de Alto Nivel.",
       subtitle: "Desarrollador Web especializado en la creación de interfaces estéticas, reactivas y de alto rendimiento utilizando Astro, React y Tailwind CSS.",
-      imageUrl: "/foto_mia.png",
+      imageUrl: "/logo.png",
       email: "kevinperezzz5000@gmail.com",
 
       location: "Honduras",
