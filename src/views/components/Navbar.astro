@@ -20,12 +20,20 @@ const isActive = (path: string) => {
 <div class="fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100vw-1.25rem)] sm:w-auto sm:max-w-[95%]">
   <nav class="flex items-center justify-between sm:justify-center gap-1 sm:gap-2.5 md:gap-3 px-3 sm:px-5 py-2 rounded-full border border-cardBorder backdrop-blur-xl bg-navbarBg shadow-[0_10px_35px_rgba(0,0,0,0.35)] transition-all">
     
-    <!-- Logo Monograma -->
-    <a href="/" class="shrink-0 flex items-center gap-2 pr-2 border-r border-cardBorder/60 hover:opacity-90 transition-opacity">
-      <div class="w-6 h-6 rounded-full bg-accent/20 border border-accent/60 flex items-center justify-center shadow-[0_0_10px_rgba(245,158,11,0.4)]">
-        <span class="font-black text-[10px] tracking-wider text-accent font-mono">KP</span>
+    <!-- Identidad: Foto de Kevin + Logo + Nombre -->
+    <a href="/" class="shrink-0 flex items-center gap-2 sm:gap-2.5 pr-2.5 border-r border-cardBorder/60 hover:opacity-95 transition-opacity" title="Inicio - Kevin Pérez">
+      <div class="relative w-7 h-7 sm:w-8 sm:h-8 rounded-full p-[1.5px] bg-gradient-to-tr from-accent via-amber-400 to-yellow-200 shadow-[0_0_12px_rgba(245,158,11,0.4)] shrink-0">
+        <div class="w-full h-full rounded-full overflow-hidden bg-[#0b1329] border border-white/20">
+          <img 
+            src="/foto_mia.png" 
+            alt="Foto de Kevin Pérez" 
+            class="w-full h-full object-cover object-[center_18%] scale-115 transition-transform duration-300 hover:scale-125" 
+            loading="eager"
+          />
+        </div>
       </div>
-      <span class="font-extrabold text-[11px] tracking-wider text-textMain hidden md:inline">KEVIN PÉREZ</span>
+      <img src="/logo.png" alt="Logo KP" class="h-5 w-auto object-contain hidden sm:inline-block" />
+      <span class="font-black text-[11px] sm:text-xs tracking-wider text-textMain hidden md:inline font-sans">KEVIN PÉREZ</span>
     </a>
 
     <!-- Enlaces de Navegación -->
