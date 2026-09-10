@@ -10,7 +10,16 @@ const { title } = Astro.props;
   style={`background: var(--navbar-bg); backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%); border-bottom: 1px solid var(--card-border); left: var(--sidebar-width);`}>
   <h1 class="text-lg font-bold" style="color: var(--textMain);">{title}</h1>
   
-  <div class="flex items-center gap-4">
+  <div class="flex items-center gap-3">
+    <!-- Usuario Admin con Foto -->
+    <a href="/admin/perfil" class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl transition-all duration-300 hover:opacity-90"
+      style="background: var(--card-bg); border: 1px solid var(--card-border);" title="Ver Perfil">
+      <div class="w-7 h-7 rounded-full overflow-hidden border border-accent/40 shrink-0">
+        <img src="/foto_mia.png" alt="Foto Admin" class="w-full h-full object-cover object-[center_18%]" />
+      </div>
+      <span class="text-xs font-bold hidden sm:inline" style="color: var(--textMain);">Kevin Pérez</span>
+    </a>
+
     <button id="admin-theme-toggle" class="p-2 rounded-xl transition-all duration-300 hover:opacity-80"
       style="color: var(--textMuted); background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(10px);">
       <span class="material-icons-outlined text-[18px] dark-icon">dark_mode</span>
