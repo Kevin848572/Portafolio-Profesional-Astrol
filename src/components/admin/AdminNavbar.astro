@@ -11,6 +11,13 @@ const { title } = Astro.props;
   <h1 class="text-lg font-bold" style="color: var(--textMain);">{title}</h1>
   
   <div class="flex items-center gap-3">
+    <!-- Badge de Firebase Firestore -->
+    <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs"
+      style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); color: #fbbf24;">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span class="font-semibold text-[11px] text-emerald-400">Firebase Firestore</span>
+    </div>
+
     <!-- Usuario Admin con Foto -->
     <a href="/admin/perfil" class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl transition-all duration-300 hover:opacity-90"
       style="background: var(--card-bg); border: 1px solid var(--card-border);" title="Ver Perfil">

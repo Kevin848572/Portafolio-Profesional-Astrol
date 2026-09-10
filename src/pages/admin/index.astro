@@ -42,6 +42,36 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
         </div>
         <p id="stat-featured" class="text-3xl font-black" style="color: var(--textMain);">—</p>
       </div>
+    <!-- Firebase Status & Diagnostics Card -->
+    <div class="admin-card p-6 mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+            style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(239, 68, 68, 0.2)); border: 1px solid rgba(245, 158, 11, 0.35);">
+            <span class="material-icons-outlined text-2xl text-amber-400">cloud_done</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h2 class="text-base font-bold" style="color: var(--textMain);">Base de Datos: Firebase Firestore</h2>
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                Conectado
+              </span>
+            </div>
+            <p class="text-xs mt-0.5" style="color: var(--textMuted);">
+              Proyecto ID: <span class="font-mono text-amber-300">portafolio-ae314</span> &bull; Colecciones: <span class="font-mono text-cyan-300">projects, skills, experiences, profile, contacts</span>
+            </p>
+          </div>
+        </div>
+
+        <button id="btn-test-firebase" class="btn-secondary flex items-center justify-center gap-2 text-xs py-2 px-4 whitespace-nowrap self-start sm:self-auto hover:border-amber-400/50 hover:text-amber-300">
+          <span class="material-icons-outlined text-[16px]">speed</span>
+          Probar Conexión Firebase
+        </button>
+      </div>
+
+      <!-- Test result container -->
+      <div id="firebase-test-result" class="hidden mt-4 pt-4 border-t border-white/10 text-xs font-mono"></div>
     </div>
 
     <!-- Quick Actions -->
@@ -174,6 +204,47 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
 
     if (experiences) {
       document.getElementById('stat-experiences').textContent = experiences.length;
+    }
+
+    const testBtn = document.getElementById('btn-test-firebase');
+    const resultBox = document.getElementById('firebase-test-result');
+    if (testBtn && !testBtn.dataset.bound) {
+      testBtn.dataset.bound = 'true';
+      testBtn.addEventListener('click', async () => {
+        testBtn.disabled = true;
+        testBtn.innerHTML = '<span class="material-icons-outlined text-[16px] animate-spin">refresh</span> Probando Firebase...';
+        const startTime = performance.now();
+        try {
+          const [projRes, skillsRes, expRes] = await Promise.all([
+            fetchAPI('/api/projects'),
+            fetchAPI('/api/skills'),
+            fetchAPI('/api/experiences')
+          ]);
+          const latency = Math.round(performance.now() - startTime);
+          if (resultBox) {
+            resultBox.classList.remove('hidden');
+            resultBox.innerHTML = `
+              <div class="flex items-center gap-2 p-3 rounded-xl" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399;">
+                <span class="material-icons-outlined text-base">check_circle</span>
+                <span><strong>Firebase Cloud Firestore Conectado Exitosamente</strong> — Latencia: ${latency}ms | Proyectos: ${projRes?.length || 0} | Skills: ${skillsRes?.length || 0} categorías | Experiencias: ${expRes?.length || 0}</span>
+              </div>
+            `;
+          }
+        } catch (e) {
+          if (resultBox) {
+            resultBox.classList.remove('hidden');
+            resultBox.innerHTML = `
+              <div class="flex items-center gap-2 p-3 rounded-xl" style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171;">
+                <span class="material-icons-outlined text-base">error</span>
+                <span>Error al consultar Firebase: ${e.message}</span>
+              </div>
+            `;
+          }
+        } finally {
+          testBtn.disabled = false;
+          testBtn.innerHTML = '<span class="material-icons-outlined text-[16px]">speed</span> Probar Conexión Firebase';
+        }
+      });
     }
   }
 
