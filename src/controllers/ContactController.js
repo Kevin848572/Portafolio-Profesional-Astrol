@@ -2,6 +2,24 @@ import { ContactModel } from '../models/ContactModel.js';
 import { ProfileModel } from '../models/ProfileModel.js';
 import { db, isFirebaseConfigured, collection, addDoc } from '../lib/firebase.js';
 
+const recentSubmissions = new Map();
+
+function isDuplicateSubmission(email, message) {
+  const key = `${(email || '').toLowerCase()}:${(message || '').trim()}`;
+  const now = Date.now();
+  const lastTime = recentSubmissions.get(key);
+  if (lastTime && (now - lastTime) < 10000) {
+    return true;
+  }
+  recentSubmissions.set(key, now);
+  if (recentSubmissions.size > 200) {
+    for (const [k, time] of recentSubmissions.entries()) {
+      if (now - time > 60000) recentSubmissions.delete(k);
+    }
+  }
+  return false;
+}
+
 export class ContactController {
   /**
    * Obtiene la información de contacto y canales sociales.
@@ -28,6 +46,14 @@ export class ContactController {
       return {
         success: false,
         errors: validation.errors
+      };
+    }
+
+    // Evitar mensajes duplicados si se envía la misma solicitud en menos de 10 segundos
+    if (isDuplicateSubmission(sanitizedData.email, sanitizedData.message)) {
+      return {
+        success: true,
+        message: '¡Mensaje recibido y guardado con éxito! Me pondré en contacto contigo en breve.'
       };
     }
 

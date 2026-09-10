@@ -179,6 +179,9 @@ const contactInfo = ContactController.getContactInfo();
 <script>
   const setupContactView = () => {
     const form = document.getElementById("contact-form") as HTMLFormElement | null;
+    if (!form || form.dataset.bound === 'true') return;
+    form.dataset.bound = 'true';
+
     const alertBox = document.getElementById("form-alert");
     const nameInput = document.getElementById("name") as HTMLInputElement | null;
     const emailInput = document.getElementById("email") as HTMLInputElement | null;
@@ -191,8 +194,12 @@ const contactInfo = ContactController.getContactInfo();
     const emailError = document.getElementById("email-error");
     const messageError = document.getElementById("message-error");
 
-    form?.addEventListener("submit", async (e) => {
+    let isSubmitting = false;
+
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (isSubmitting) return;
+      isSubmitting = true;
 
       [nameError, emailError, messageError].forEach(el => el?.classList.add("hidden"));
       if (alertBox) alertBox.className = "hidden mb-6 p-4 rounded-xl text-xs font-bold transition-all";
@@ -243,6 +250,7 @@ const contactInfo = ContactController.getContactInfo();
           alertBox.className = "block mb-6 p-4 rounded-xl text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40";
         }
       } finally {
+        isSubmitting = false;
         if (submitBtn) submitBtn.disabled = false;
         if (btnText) btnText.textContent = "Enviar Mensaje Directo";
       }
@@ -252,20 +260,23 @@ const contactInfo = ContactController.getContactInfo();
     const copyIcon = document.getElementById("copy-icon");
     const checkIcon = document.getElementById("check-icon");
 
-    copyBtn?.addEventListener("click", () => {
-      const email = copyBtn.getAttribute("data-email");
-      if (email) {
-        navigator.clipboard.writeText(email).then(() => {
-          copyIcon?.classList.add("hidden");
-          checkIcon?.classList.remove("hidden");
+    if (copyBtn && !copyBtn.dataset.bound) {
+      copyBtn.dataset.bound = 'true';
+      copyBtn.addEventListener("click", () => {
+        const email = copyBtn.getAttribute("data-email");
+        if (email) {
+          navigator.clipboard.writeText(email).then(() => {
+            copyIcon?.classList.add("hidden");
+            checkIcon?.classList.remove("hidden");
 
-          setTimeout(() => {
-            copyIcon?.classList.remove("hidden");
-            checkIcon?.classList.add("hidden");
-          }, 2000);
-        });
-      }
-    });
+            setTimeout(() => {
+              copyIcon?.classList.remove("hidden");
+              checkIcon?.classList.add("hidden");
+            }, 2000);
+          });
+        }
+      });
+    }
   };
 
   setupContactView();

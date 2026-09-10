@@ -80,15 +80,8 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
     return res;
   }
 
-  requireAuth();
-
-  const listEl = document.getElementById('messages-list');
-  const loadingEl = document.getElementById('loading-state');
-  const emptyEl = document.getElementById('empty-state');
-  const alertEl = document.getElementById('messages-alert');
-  const refreshBtn = document.getElementById('btn-refresh');
-
   function showAlert(msg, isError = false) {
+    const alertEl = document.getElementById('messages-alert');
     if (!alertEl) return;
     alertEl.textContent = msg;
     alertEl.className = `block mb-6 p-4 rounded-xl text-xs font-semibold ${
@@ -97,6 +90,10 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
   }
 
   async function loadMessages() {
+    const listEl = document.getElementById('messages-list');
+    const loadingEl = document.getElementById('loading-state');
+    const emptyEl = document.getElementById('empty-state');
+
     if (loadingEl) loadingEl.classList.remove('hidden');
     if (emptyEl) emptyEl.classList.add('hidden');
     if (listEl) listEl.innerHTML = '';
@@ -125,6 +122,7 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
   }
 
   function renderMessages(messages) {
+    const listEl = document.getElementById('messages-list');
     if (!listEl) return;
     listEl.innerHTML = '';
 
@@ -138,42 +136,39 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
       card.innerHTML = `
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-cardBorder">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs" style="background: rgba(var(--accent-rgb), 0.15); color: var(--accent);">
-              ${(msg.name || 'U').charAt(0).toUpperCase()}
+            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-accent/15 text-accent border border-accent/25">
+              ${escapeHtml(msg.name ? msg.name.charAt(0).toUpperCase() : '?')}
             </div>
             <div>
-              <h3 class="font-bold text-sm" style="color: var(--textMain);">${escapeHtml(msg.name || 'Anónimo')}</h3>
-              <a href="mailto:${escapeHtml(msg.email)}" class="text-xs hover:underline flex items-center gap-1" style="color: var(--accent);">
-                ${escapeHtml(msg.email)}
-              </a>
+              <h4 class="font-bold text-sm text-textMain">${escapeHtml(msg.name || 'Sin Nombre')}</h4>
+              <a href="mailto:${escapeHtml(msg.email)}" class="text-xs text-accent hover:underline">${escapeHtml(msg.email || 'Sin Correo')}</a>
             </div>
           </div>
-          <div class="flex items-center gap-3">
-            <span class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-background/50" style="color: var(--textMuted);">
+          <div class="flex items-center gap-4 self-end sm:self-auto">
+            <span class="text-xs text-textMuted flex items-center gap-1">
+              <span class="material-icons-outlined text-sm">schedule</span>
               ${dateStr}
             </span>
             <button 
-              data-id="${msg.id}" 
-              class="btn-delete-msg p-2 rounded-lg hover:bg-rose-500/20 text-textMuted hover:text-rose-400 transition-colors cursor-pointer"
+              class="btn-delete p-1.5 rounded-lg text-textMuted hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+              data-id="${msg.id}"
               title="Eliminar mensaje"
             >
               <span class="material-icons-outlined text-base">delete</span>
             </button>
           </div>
         </div>
-        <p class="text-xs leading-relaxed whitespace-pre-wrap" style="color: var(--textMain);">
-          ${escapeHtml(msg.message || '')}
-        </p>
+        <p class="text-xs sm:text-sm text-textMuted whitespace-pre-wrap leading-relaxed">${escapeHtml(msg.message)}</p>
       `;
-
       listEl.appendChild(card);
     });
 
-    // Delete listeners
-    document.querySelectorAll('.btn-delete-msg').forEach((btn) => {
+    document.querySelectorAll('.btn-delete').forEach((btn) => {
       btn.addEventListener('click', async (e) => {
-        const id = e.currentTarget.getAttribute('data-id');
+        const target = e.currentTarget;
+        const id = target.getAttribute('data-id');
         if (!id) return;
+
         if (!confirm('¿Estás seguro de que deseas eliminar este mensaje?')) return;
 
         try {
@@ -201,9 +196,21 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
     return div.innerHTML;
   }
 
-  refreshBtn?.addEventListener('click', loadMessages);
-  document.addEventListener('astro:page-load', () => {
-    if (getToken()) loadMessages();
-  });
-  loadMessages();
+  function setupMessagesPage() {
+    if (!getToken()) {
+      window.location.href = '/admin/login';
+      return;
+    }
+
+    loadMessages();
+
+    const refreshBtn = document.getElementById('btn-refresh');
+    if (refreshBtn && !refreshBtn.dataset.bound) {
+      refreshBtn.dataset.bound = 'true';
+      refreshBtn.addEventListener('click', loadMessages);
+    }
+  }
+
+  setupMessagesPage();
+  document.addEventListener('astro:page-load', setupMessagesPage);
 </script>

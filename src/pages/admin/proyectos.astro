@@ -12,7 +12,7 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <p class="text-sm" style="color: var(--textMuted);">Administra tus proyectos del portafolio &bull; Colección Firebase: <span class="font-mono text-cyan-400">projects</span></p>
-      <button id="btn-new-project" class="btn-primary flex items-center gap-2">
+      <button id="btn-new-project" onclick="window.showProjectModal && window.showProjectModal()" class="btn-primary flex items-center gap-2 cursor-pointer">
         <span class="material-icons-outlined text-[18px]">add</span>
         Nuevo Proyecto
       </button>
@@ -29,7 +29,7 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
       <div class="admin-card w-full max-w-2xl max-h-[90vh] overflow-y-auto no-scrollbar p-6">
         <div class="flex items-center justify-between mb-6">
           <h3 id="modal-title" class="text-lg font-bold" style="color: var(--textMain);">Nuevo Proyecto</h3>
-          <button id="btn-close-modal" class="p-2 rounded-lg hover:opacity-80" style="color: var(--textMuted);">
+          <button id="btn-close-modal" onclick="window.hideProjectModal && window.hideProjectModal()" class="p-2 rounded-lg hover:opacity-80 cursor-pointer" style="color: var(--textMuted);">
             <span class="material-icons-outlined">close</span>
           </button>
         </div>
@@ -99,8 +99,8 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
           </div>
 
           <div class="flex justify-end gap-3 pt-2">
-            <button type="button" id="btn-cancel" class="btn-secondary">Cancelar</button>
-            <button type="submit" id="btn-save" class="btn-primary">Guardar Proyecto</button>
+            <button type="button" id="btn-cancel" onclick="window.hideProjectModal && window.hideProjectModal()" class="btn-secondary cursor-pointer">Cancelar</button>
+            <button type="submit" id="btn-save" class="btn-primary cursor-pointer">Guardar Proyecto</button>
           </div>
         </form>
       </div>
@@ -194,6 +194,8 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
     `).join('');
   }
 
+  window.showProjectModal = showModal;
+  window.hideProjectModal = hideModal;
   window.editProject = function(project) {
     showModal(project);
   };
@@ -204,60 +206,95 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
     if (res && res.ok) loadProjects();
   };
 
-  document.getElementById('btn-new-project')?.addEventListener('click', () => showModal());
-  document.getElementById('btn-close-modal')?.addEventListener('click', hideModal);
-  document.getElementById('btn-cancel')?.addEventListener('click', hideModal);
+  function setupProjectsPage() {
+    if (!getToken()) return;
 
-  document.getElementById('project-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const errorMsg = document.getElementById('form-error');
-    errorMsg.style.display = 'none';
+    loadProjects();
 
-    const tags = document.getElementById('p-tags').value.split(',').map(t => t.trim()).filter(Boolean);
-    const body = {
-      slug: document.getElementById('p-slug').value,
-      title: document.getElementById('p-title').value,
-      description: document.getElementById('p-description').value,
-      long_description: document.getElementById('p-long-description').value || null,
-      category: document.getElementById('p-category').value,
-      tags,
-      image: document.getElementById('p-image').value || null,
-      demo_url: document.getElementById('p-demo-url').value || null,
-      github_url: document.getElementById('p-github-url').value || null,
-      featured: document.getElementById('p-featured').checked,
-    };
-
-    try {
-      let res;
-      if (editingId) {
-        res = await fetchAPI(`/api/projects/${editingId}`, {
-          method: 'PUT',
-          body: JSON.stringify(body),
-        });
-      } else {
-        res = await fetchAPI('/api/projects', {
-          method: 'POST',
-          body: JSON.stringify(body),
-        });
-      }
-
-      if (res && res.ok) {
-        hideModal();
-        loadProjects();
-      } else {
-        const err = await res.json().catch(() => ({ detail: 'Error al guardar' }));
-        errorMsg.textContent = err.detail || 'Error al guardar';
-        errorMsg.style.display = 'block';
-      }
-    } catch (error) {
-      errorMsg.textContent = 'Error de conexión';
-      errorMsg.style.display = 'block';
+    const newBtn = document.getElementById('btn-new-project');
+    if (newBtn && !newBtn.dataset.bound) {
+      newBtn.dataset.bound = 'true';
+      newBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        showModal();
+      });
     }
-  });
 
-  document.addEventListener('astro:page-load', () => {
-    if (getToken()) loadProjects();
-  });
+    const closeBtn = document.getElementById('btn-close-modal');
+    if (closeBtn && !closeBtn.dataset.bound) {
+      closeBtn.dataset.bound = 'true';
+      closeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        hideModal();
+      });
+    }
 
-  loadProjects();
+    const cancelBtn = document.getElementById('btn-cancel');
+    if (cancelBtn && !cancelBtn.dataset.bound) {
+      cancelBtn.dataset.bound = 'true';
+      cancelBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        hideModal();
+      });
+    }
+
+    const form = document.getElementById('project-form');
+    if (form && !form.dataset.bound) {
+      form.dataset.bound = 'true';
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errorMsg = document.getElementById('form-error');
+        errorMsg.style.display = 'none';
+
+        const tags = document.getElementById('p-tags').value.split(',').map(t => t.trim()).filter(Boolean);
+        const body = {
+          slug: document.getElementById('p-slug').value,
+          title: document.getElementById('p-title').value,
+          description: document.getElementById('p-description').value,
+          long_description: document.getElementById('p-long-description').value || null,
+          category: document.getElementById('p-category').value,
+          tags,
+          image: document.getElementById('p-image').value || null,
+          demo_url: document.getElementById('p-demo-url').value || null,
+          github_url: document.getElementById('p-github-url').value || null,
+          featured: document.getElementById('p-featured').checked,
+        };
+
+        const saveBtn = document.getElementById('btn-save');
+        if (saveBtn) saveBtn.disabled = true;
+
+        try {
+          let res;
+          if (editingId) {
+            res = await fetchAPI(`/api/projects/${editingId}`, {
+              method: 'PUT',
+              body: JSON.stringify(body),
+            });
+          } else {
+            res = await fetchAPI('/api/projects', {
+              method: 'POST',
+              body: JSON.stringify(body),
+            });
+          }
+
+          if (res && res.ok) {
+            hideModal();
+            loadProjects();
+          } else {
+            const err = await res.json().catch(() => ({ detail: 'Error al guardar' }));
+            errorMsg.textContent = err.detail || 'Error al guardar';
+            errorMsg.style.display = 'block';
+          }
+        } catch (error) {
+          errorMsg.textContent = 'Error de conexión';
+          errorMsg.style.display = 'block';
+        } finally {
+          if (saveBtn) saveBtn.disabled = false;
+        }
+      });
+    }
+  }
+
+  setupProjectsPage();
+  document.addEventListener('astro:page-load', setupProjectsPage);
 </script>

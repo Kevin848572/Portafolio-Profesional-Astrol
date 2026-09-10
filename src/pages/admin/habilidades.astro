@@ -12,11 +12,11 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
     <div class="flex items-center justify-between mb-6">
       <p class="text-sm" style="color: var(--textMuted);">Administra tus habilidades y categorías &bull; Colección Firebase: <span class="font-mono text-cyan-400">skills</span></p>
       <div class="flex gap-3">
-        <button id="btn-new-category" class="btn-secondary flex items-center gap-2">
+        <button id="btn-new-category" onclick="window.showCategoryModal && window.showCategoryModal()" class="btn-secondary flex items-center gap-2 cursor-pointer">
           <span class="material-icons-outlined text-[18px]">add</span>
           Nueva Categoría
         </button>
-        <button id="btn-new-skill" class="btn-primary flex items-center gap-2">
+        <button id="btn-new-skill" onclick="window.showSkillModal && window.showSkillModal()" class="btn-primary flex items-center gap-2 cursor-pointer">
           <span class="material-icons-outlined text-[18px]">add</span>
           Nueva Skill
         </button>
@@ -34,7 +34,7 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
       <div class="admin-card w-full max-w-lg p-6">
         <div class="flex items-center justify-between mb-6">
           <h3 id="skill-modal-title" class="text-lg font-bold" style="color: var(--textMain);">Nueva Skill</h3>
-          <button id="btn-close-skill-modal" class="p-2 rounded-lg hover:opacity-80" style="color: var(--textMuted);">
+          <button id="btn-close-skill-modal" onclick="window.hideSkillModal && window.hideSkillModal()" class="p-2 rounded-lg hover:opacity-80 cursor-pointer" style="color: var(--textMuted);">
             <span class="material-icons-outlined">close</span>
           </button>
         </div>
@@ -65,8 +65,8 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
           <div id="skill-form-error" class="hidden text-sm font-medium px-4 py-3 rounded-xl"
             style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2);"></div>
           <div class="flex justify-end gap-3 pt-2">
-            <button type="button" id="btn-cancel-skill" class="btn-secondary">Cancelar</button>
-            <button type="submit" class="btn-primary">Guardar</button>
+            <button type="button" id="btn-cancel-skill" onclick="window.hideSkillModal && window.hideSkillModal()" class="btn-secondary cursor-pointer">Cancelar</button>
+            <button type="submit" class="btn-primary cursor-pointer">Guardar</button>
           </div>
         </form>
       </div>
@@ -78,7 +78,7 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
       <div class="admin-card w-full max-w-md p-6">
         <div class="flex items-center justify-between mb-6">
           <h3 class="text-lg font-bold" style="color: var(--textMain);">Nueva Categoría</h3>
-          <button id="btn-close-category-modal" class="p-2 rounded-lg hover:opacity-80" style="color: var(--textMuted);">
+          <button id="btn-close-category-modal" onclick="window.hideCategoryModal && window.hideCategoryModal()" class="p-2 rounded-lg hover:opacity-80 cursor-pointer" style="color: var(--textMuted);">
             <span class="material-icons-outlined">close</span>
           </button>
         </div>
@@ -88,8 +88,8 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
             <input type="text" id="c-name" class="admin-input" required placeholder="Nueva Categoría" />
           </div>
           <div class="flex justify-end gap-3 pt-2">
-            <button type="button" id="btn-cancel-category" class="btn-secondary">Cancelar</button>
-            <button type="submit" class="btn-primary">Crear</button>
+            <button type="button" id="btn-cancel-category" onclick="window.hideCategoryModal && window.hideCategoryModal()" class="btn-secondary cursor-pointer">Cancelar</button>
+            <button type="submit" class="btn-primary cursor-pointer">Crear</button>
           </div>
         </form>
       </div>
@@ -186,6 +186,18 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
     modal.classList.remove('hidden');
   }
 
+  window.showSkillModal = showSkillModal;
+  window.hideSkillModal = function() {
+    document.getElementById('skill-modal')?.classList.add('hidden');
+    editingSkillId = null;
+  };
+  window.showCategoryModal = function() {
+    document.getElementById('category-modal')?.classList.remove('hidden');
+  };
+  window.hideCategoryModal = function() {
+    document.getElementById('category-modal')?.classList.add('hidden');
+  };
+
   window.editSkill = function(skill) { showSkillModal(skill); };
 
   window.deleteSkill = async function(id) {
@@ -194,63 +206,86 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
     if (res && res.ok) loadSkills();
   };
 
-  document.getElementById('btn-new-skill')?.addEventListener('click', () => showSkillModal());
-  document.getElementById('btn-close-skill-modal')?.addEventListener('click', () => document.getElementById('skill-modal').classList.add('hidden'));
-  document.getElementById('btn-cancel-skill')?.addEventListener('click', () => document.getElementById('skill-modal').classList.add('hidden'));
+  function setupSkillsPage() {
+    if (!getToken()) return;
+    loadSkills();
 
-  document.getElementById('btn-new-category')?.addEventListener('click', () => document.getElementById('category-modal').classList.remove('hidden'));
-  document.getElementById('btn-close-category-modal')?.addEventListener('click', () => document.getElementById('category-modal').classList.add('hidden'));
-  document.getElementById('btn-cancel-category')?.addEventListener('click', () => document.getElementById('category-modal').classList.add('hidden'));
-
-  document.getElementById('skill-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const errorMsg = document.getElementById('skill-form-error');
-    errorMsg.style.display = 'none';
-
-    const body = {
-      name: document.getElementById('s-name').value,
-      level: document.getElementById('s-level').value,
-      category_id: parseInt(document.getElementById('s-category').value),
-      description: document.getElementById('s-description').value || null,
-    };
-
-    try {
-      let res;
-      if (editingSkillId) {
-        res = await fetchAPI(`/api/skills/${editingSkillId}`, { method: 'PUT', body: JSON.stringify(body) });
-      } else {
-        res = await fetchAPI('/api/skills', { method: 'POST', body: JSON.stringify(body) });
-      }
-
-      if (res && res.ok) {
-        document.getElementById('skill-modal').classList.add('hidden');
-        loadSkills();
-      } else {
-        const err = await res.json().catch(() => ({ detail: 'Error al guardar' }));
-        errorMsg.textContent = err.detail || 'Error al guardar';
-        errorMsg.style.display = 'block';
-      }
-    } catch (error) {
-      errorMsg.textContent = 'Error de conexión';
-      errorMsg.style.display = 'block';
+    const newSkillBtn = document.getElementById('btn-new-skill');
+    if (newSkillBtn && !newSkillBtn.dataset.bound) {
+      newSkillBtn.dataset.bound = 'true';
+      newSkillBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        showSkillModal();
+      });
     }
-  });
 
-  document.getElementById('category-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const name = document.getElementById('c-name').value;
-    const res = await fetchAPI('/api/skills/categories', {
-      method: 'POST',
-      body: JSON.stringify({ name }),
-    });
-
-    if (res && res.ok) {
-      document.getElementById('category-modal').classList.add('hidden');
-      document.getElementById('category-form').reset();
-      loadSkills();
+    const newCategoryBtn = document.getElementById('btn-new-category');
+    if (newCategoryBtn && !newCategoryBtn.dataset.bound) {
+      newCategoryBtn.dataset.bound = 'true';
+      newCategoryBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.showCategoryModal();
+      });
     }
-  });
 
-  document.addEventListener('astro:page-load', () => { if (getToken()) loadSkills(); });
-  loadSkills();
+    const skillForm = document.getElementById('skill-form');
+    if (skillForm && !skillForm.dataset.bound) {
+      skillForm.dataset.bound = 'true';
+      skillForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errorMsg = document.getElementById('skill-form-error');
+        errorMsg.style.display = 'none';
+
+        const body = {
+          name: document.getElementById('s-name').value,
+          level: document.getElementById('s-level').value,
+          category_id: parseInt(document.getElementById('s-category').value),
+          description: document.getElementById('s-description').value || null,
+        };
+
+        try {
+          let res;
+          if (editingSkillId) {
+            res = await fetchAPI(`/api/skills/${editingSkillId}`, { method: 'PUT', body: JSON.stringify(body) });
+          } else {
+            res = await fetchAPI('/api/skills', { method: 'POST', body: JSON.stringify(body) });
+          }
+
+          if (res && res.ok) {
+            window.hideSkillModal();
+            loadSkills();
+          } else {
+            const err = await res.json().catch(() => ({ detail: 'Error al guardar' }));
+            errorMsg.textContent = err.detail || 'Error al guardar';
+            errorMsg.style.display = 'block';
+          }
+        } catch (error) {
+          errorMsg.textContent = 'Error de conexión';
+          errorMsg.style.display = 'block';
+        }
+      });
+    }
+
+    const categoryForm = document.getElementById('category-form');
+    if (categoryForm && !categoryForm.dataset.bound) {
+      categoryForm.dataset.bound = 'true';
+      categoryForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('c-name').value;
+        const res = await fetchAPI('/api/skills/categories', {
+          method: 'POST',
+          body: JSON.stringify({ name }),
+        });
+
+        if (res && res.ok) {
+          window.hideCategoryModal();
+          categoryForm.reset();
+          loadSkills();
+        }
+      });
+    }
+  }
+
+  setupSkillsPage();
+  document.addEventListener('astro:page-load', setupSkillsPage);
 </script>
