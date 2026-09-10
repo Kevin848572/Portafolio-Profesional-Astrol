@@ -11,7 +11,7 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
   <main class="ml-[var(--sidebar-width)] pt-20 px-8 pb-12 min-h-screen transition-all duration-300">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <p class="text-sm" style="color: var(--textMuted);">Mensajes y propuestas de clientes guardados en Supabase</p>
+        <p class="text-sm" style="color: var(--textMuted);">Mensajes y propuestas de clientes guardados en Firebase Firestore</p>
       </div>
       <button 
         id="btn-refresh" 
@@ -30,7 +30,7 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
     <!-- Loading State -->
     <div id="loading-state" class="admin-card p-12 text-center">
       <div class="inline-block animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full mb-3"></div>
-      <p class="text-xs font-mono" style="color: var(--textMuted);">Cargando mensajes desde Supabase...</p>
+      <p class="text-xs font-mono" style="color: var(--textMuted);">Cargando mensajes desde Firebase...</p>
     </div>
 
     <!-- Empty State -->
@@ -38,7 +38,7 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
       <span class="material-icons-outlined text-4xl mb-3" style="color: var(--textMuted);">mark_email_read</span>
       <h3 class="text-base font-bold mb-1" style="color: var(--textMain);">No hay mensajes registrados</h3>
       <p class="text-xs max-w-sm mx-auto" style="color: var(--textMuted);">
-        Los mensajes que tus visitantes envíen a través del formulario de contacto aparecerán aquí y en Supabase.
+        Los mensajes que tus visitantes envíen a través del formulario de contacto aparecerán aquí y en Firebase Firestore.
       </p>
     </div>
 
@@ -120,7 +120,7 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
       renderMessages(messages);
     } catch (err) {
       if (loadingEl) loadingEl.classList.add('hidden');
-      showAlert(err.message || 'Error de conexión con Supabase', true);
+      showAlert(err.message || 'Error de conexión con Firebase', true);
     }
   }
 

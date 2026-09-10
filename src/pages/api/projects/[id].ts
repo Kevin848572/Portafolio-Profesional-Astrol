@@ -6,8 +6,8 @@ export const prerender = false;
 
 export const GET: APIRoute = async ({ params }) => {
   try {
-    const id = Number(params.id);
-    if (isNaN(id)) {
+    const id = params.id;
+    if (!id) {
       return new Response(JSON.stringify({ detail: 'ID inválido' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
     
@@ -31,8 +31,8 @@ export const PUT: APIRoute = async ({ params, request }) => {
   try {
     await verifyAuth(request);
     
-    const id = Number(params.id);
-    if (isNaN(id)) {
+    const id = params.id;
+    if (!id) {
       return new Response(JSON.stringify({ detail: 'ID inválido' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
     
@@ -46,7 +46,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
     }
     return new Response(JSON.stringify(updated), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (error: any) {
-    const status = error.message.includes('No autorizado') ? 401 : 500;
+    const status = error.message?.includes('No autorizado') ? 401 : 500;
     return new Response(
       JSON.stringify({ detail: error.message || 'Error en el servidor' }),
       { status, headers: { 'Content-Type': 'application/json' } }
@@ -58,8 +58,8 @@ export const DELETE: APIRoute = async ({ params, request }) => {
   try {
     await verifyAuth(request);
     
-    const id = Number(params.id);
-    if (isNaN(id)) {
+    const id = params.id;
+    if (!id) {
       return new Response(JSON.stringify({ detail: 'ID inválido' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
     
@@ -72,7 +72,7 @@ export const DELETE: APIRoute = async ({ params, request }) => {
     }
     return new Response(null, { status: 204 });
   } catch (error: any) {
-    const status = error.message.includes('No autorizado') ? 401 : 500;
+    const status = error.message?.includes('No autorizado') ? 401 : 500;
     return new Response(
       JSON.stringify({ detail: error.message || 'Error en el servidor' }),
       { status, headers: { 'Content-Type': 'application/json' } }

@@ -1,7 +1,14 @@
-import pool from '../db';
+import { 
+  db, 
+  isFirebaseConfigured, 
+  doc, 
+  getDoc, 
+  setDoc 
+} from '../firebase.js';
+import { ProfileModel } from '../../models/ProfileModel.js';
 
 export interface Profile {
-  id: number;
+  id: string | number;
   name: string;
   role: string;
   status: string;
@@ -11,38 +18,76 @@ export interface Profile {
   email: string;
   location: string;
   cv_url: string | null;
-  stats: any; // will hold parsed json array
-  socials: any; // will hold parsed json object
+  stats: any;
+  socials: any;
+}
+
+function getInitialProfile(): Profile {
+  const p = ProfileModel.getProfile();
+  return {
+    id: 'main',
+    name: p.name,
+    role: p.role,
+    status: p.status,
+    title: p.title,
+    subtitle: p.subtitle,
+    image_url: p.imageUrl,
+    email: p.email,
+    location: p.location,
+    cv_url: p.cvUrl || null,
+    stats: p.stats,
+    socials: p.socials
+  };
 }
 
 export async function getProfile(): Promise<Profile | null> {
-  const result = await pool.query('SELECT * FROM profile LIMIT 1');
-  if (result.rows.length === 0) return null;
-  return result.rows[0];
-}
-
-export async function updateProfile(id: number, data: Partial<Omit<Profile, 'id'>>): Promise<Profile | null> {
-  const fields: string[] = [];
-  const values: any[] = [];
-  let index = 1;
-
-  for (const [key, value] of Object.entries(data)) {
-    // Stringify JSON/JSONB fields for pg package
-    if (key === 'stats' || key === 'socials') {
-      fields.push(`${key} = $${index}`);
-      values.push(JSON.stringify(value));
-    } else {
-      fields.push(`${key} = $${index}`);
-      values.push(value);
+  if (isFirebaseConfigured() && db) {
+    try {
+      const docRef = doc(db, 'profile', 'main');
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        const data = snap.data();
+        return {
+          id: snap.id,
+          name: data.name || '',
+          role: data.role || '',
+          status: data.status || '',
+          title: data.title || '',
+          subtitle: data.subtitle || '',
+          image_url: data.image_url || data.imageUrl || '',
+          email: data.email || '',
+          location: data.location || '',
+          cv_url: data.cv_url || data.cvUrl || null,
+          stats: data.stats || [],
+          socials: data.socials || {}
+        };
+      }
+    } catch (e) {
+      console.warn('Error al leer perfil desde Firestore:', e);
     }
-    index++;
   }
 
-  if (fields.length === 0) return await getProfile();
+  return getInitialProfile();
+}
 
-  values.push(id);
-  const query = `UPDATE profile SET ${fields.join(', ')} WHERE id = $${index} RETURNING *`;
-  const result = await pool.query(query, values);
-  if (result.rows.length === 0) return null;
-  return result.rows[0];
+export async function updateProfile(id: string | number, data: Partial<Omit<Profile, 'id'>>): Promise<Profile | null> {
+  if (!isFirebaseConfigured() || !db) {
+    throw new Error('Firebase Firestore no está configurado');
+  }
+
+  const docRef = doc(db, 'profile', 'main');
+  const current = (await getProfile()) || getInitialProfile();
+
+  const updated: Profile = {
+    ...current,
+    ...data,
+    id: 'main'
+  };
+
+  await setDoc(docRef, {
+    ...updated,
+    updated_at: new Date().toISOString()
+  }, { merge: true });
+
+  return updated;
 }

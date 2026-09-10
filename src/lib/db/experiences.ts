@@ -1,13 +1,24 @@
-import pool from '../db';
+import { 
+  db, 
+  isFirebaseConfigured, 
+  collection, 
+  getDocs, 
+  getDoc, 
+  doc, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc 
+} from '../firebase.js';
+import { ExperienceModel } from '../../models/ExperienceModel.js';
 
 export interface ExperienceAchievement {
-  id: number;
+  id: string | number;
   text: string;
-  experience_id: number;
+  experience_id?: string | number;
 }
 
 export interface Experience {
-  id: number;
+  id: string | number;
   year: string;
   period: string;
   role: string;
@@ -17,123 +28,154 @@ export interface Experience {
   achievements?: ExperienceAchievement[];
 }
 
+function getInitialExperiences(): Experience[] {
+  return ExperienceModel.getExperiences().map((exp, idx) => ({
+    id: idx + 1,
+    year: exp.year,
+    period: exp.period,
+    role: exp.role,
+    company: exp.company,
+    description: exp.description,
+    tags: exp.tags || [],
+    achievements: (exp.achievements || []).map((text, aIdx) => ({
+      id: `${idx + 1}-${aIdx + 1}`,
+      text,
+      experience_id: idx + 1
+    }))
+  }));
+}
+
 export async function getAllExperiences(): Promise<Experience[]> {
-  const experiencesResult = await pool.query('SELECT * FROM experiences ORDER BY id DESC');
-  const experiences: Experience[] = experiencesResult.rows;
-
-  const achievementsResult = await pool.query('SELECT * FROM experience_achievements ORDER BY id');
-  const achievements: ExperienceAchievement[] = achievementsResult.rows;
-
-  for (const exp of experiences) {
-    exp.achievements = achievements.filter(a => a.experience_id === exp.id);
-  }
-
-  return experiences;
-}
-
-export async function getExperienceById(id: number): Promise<Experience | null> {
-  const expResult = await pool.query('SELECT * FROM experiences WHERE id = $1 LIMIT 1', [id]);
-  if (expResult.rows.length === 0) return null;
-  const exp: Experience = expResult.rows[0];
-
-  const achResult = await pool.query('SELECT * FROM experience_achievements WHERE experience_id = $1 ORDER BY id', [id]);
-  exp.achievements = achResult.rows;
-
-  return exp;
-}
-
-export async function createExperience(data: Omit<Experience, 'id'> & { achievements?: Omit<ExperienceAchievement, 'id' | 'experience_id'>[] }): Promise<Experience> {
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-    
-    // Insert experience
-    const expResult = await client.query(
-      `INSERT INTO experiences (year, period, role, company, description, tags) 
-      VALUES ($1, $2, $3, $4, $5, $6) 
-      RETURNING *`,
-      [data.year, data.period, data.role, data.company, data.description, data.tags]
-    );
-    const exp: Experience = expResult.rows[0];
-    
-    // Insert achievements if provided
-    exp.achievements = [];
-    if (data.achievements && data.achievements.length > 0) {
-      for (const ach of data.achievements) {
-        const achResult = await client.query(
-          'INSERT INTO experience_achievements (text, experience_id) VALUES ($1, $2) RETURNING *',
-          [ach.text, exp.id]
-        );
-        exp.achievements.push(achResult.rows[0]);
+  if (isFirebaseConfigured() && db) {
+    try {
+      const snap = await getDocs(collection(db, 'experiences'));
+      if (!snap.empty) {
+        return snap.docs.map(docSnap => {
+          const data = docSnap.data();
+          const rawAchievements = Array.isArray(data.achievements) ? data.achievements : [];
+          return {
+            id: docSnap.id,
+            year: data.year || '',
+            period: data.period || '',
+            role: data.role || '',
+            company: data.company || '',
+            description: data.description || '',
+            tags: Array.isArray(data.tags) ? data.tags : [],
+            achievements: rawAchievements.map((item: any, i: number) => ({
+              id: item.id || `${docSnap.id}-${i}`,
+              text: typeof item === 'string' ? item : item.text || '',
+              experience_id: docSnap.id
+            }))
+          };
+        });
       }
+    } catch (e) {
+      console.warn('Error al leer experiencias desde Firestore:', e);
     }
-    
-    await client.query('COMMIT');
-    return exp;
-  } catch (e) {
-    await client.query('ROLLBACK');
-    throw e;
-  } finally {
-    client.release();
   }
+
+  return getInitialExperiences();
+}
+
+export async function getExperienceById(id: string | number): Promise<Experience | null> {
+  const strId = String(id);
+  if (isFirebaseConfigured() && db) {
+    try {
+      const snap = await getDoc(doc(db, 'experiences', strId));
+      if (snap.exists()) {
+        const data = snap.data();
+        const rawAchievements = Array.isArray(data.achievements) ? data.achievements : [];
+        return {
+          id: snap.id,
+          year: data.year || '',
+          period: data.period || '',
+          role: data.role || '',
+          company: data.company || '',
+          description: data.description || '',
+          tags: Array.isArray(data.tags) ? data.tags : [],
+          achievements: rawAchievements.map((item: any, i: number) => ({
+            id: item.id || `${snap.id}-${i}`,
+            text: typeof item === 'string' ? item : item.text || '',
+            experience_id: snap.id
+          }))
+        };
+      }
+    } catch (e) {
+      console.warn('Error al buscar experiencia en Firestore:', e);
+    }
+  }
+
+  const all = await getAllExperiences();
+  return all.find(e => String(e.id) === strId) || null;
+}
+
+export async function createExperience(
+  data: Omit<Experience, 'id'> & { achievements?: (string | { text: string })[] }
+): Promise<Experience> {
+  if (!isFirebaseConfigured() || !db) {
+    throw new Error('Firebase Firestore no está configurado');
+  }
+
+  const achievementsList = (data.achievements || []).map(a => ({
+    text: typeof a === 'string' ? a : a.text
+  }));
+
+  const expData = {
+    year: data.year,
+    period: data.period,
+    role: data.role,
+    company: data.company,
+    description: data.description,
+    tags: data.tags || [],
+    achievements: achievementsList,
+    created_at: new Date().toISOString()
+  };
+
+  const docRef = await addDoc(collection(db, 'experiences'), expData);
+  return {
+    id: docRef.id,
+    ...expData,
+    achievements: achievementsList.map((a, i) => ({
+      id: `${docRef.id}-${i}`,
+      text: a.text,
+      experience_id: docRef.id
+    }))
+  };
 }
 
 export async function updateExperience(
-  id: number, 
-  data: Partial<Omit<Experience, 'id'>> & { achievements?: Omit<ExperienceAchievement, 'id' | 'experience_id'>[] }
+  id: string | number,
+  data: Partial<Omit<Experience, 'id'>> & { achievements?: (string | { text: string })[] }
 ): Promise<Experience | null> {
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-
-    // Filter fields to update
-    const fields: string[] = [];
-    const values: any[] = [];
-    let index = 1;
-
-    const { achievements, ...expData } = data;
-
-    for (const [key, value] of Object.entries(expData)) {
-      fields.push(`${key} = $${index}`);
-      values.push(value);
-      index++;
-    }
-
-    if (fields.length > 0) {
-      values.push(id);
-      await client.query(`UPDATE experiences SET ${fields.join(', ')} WHERE id = $${index}`, values);
-    }
-
-    // Update achievements if provided (replace them)
-    if (achievements !== undefined) {
-      // Delete old achievements
-      await client.query('DELETE FROM experience_achievements WHERE experience_id = $1', [id]);
-      
-      // Insert new achievements
-      if (achievements.length > 0) {
-        for (const ach of achievements) {
-          await client.query(
-            'INSERT INTO experience_achievements (text, experience_id) VALUES ($1, $2)',
-            [ach.text, id]
-          );
-        }
-      }
-    }
-
-    await client.query('COMMIT');
-    
-    // Fetch and return the updated experience
-    return await getExperienceById(id);
-  } catch (e) {
-    await client.query('ROLLBACK');
-    throw e;
-  } finally {
-    client.release();
+  if (!isFirebaseConfigured() || !db) {
+    throw new Error('Firebase Firestore no está configurado');
   }
+
+  const strId = String(id);
+  const docRef = doc(db, 'experiences', strId);
+  const snap = await getDoc(docRef);
+  if (!snap.exists()) {
+    return null;
+  }
+
+  const updateData: any = { ...data };
+  if (data.achievements !== undefined) {
+    updateData.achievements = data.achievements.map(a => ({
+      text: typeof a === 'string' ? a : a.text
+    }));
+  }
+  updateData.updated_at = new Date().toISOString();
+
+  await updateDoc(docRef, updateData);
+  return await getExperienceById(strId);
 }
 
-export async function deleteExperience(id: number): Promise<boolean> {
-  // CASCADE delete will handle achievements thanks to foreign key ON DELETE CASCADE
-  const result = await pool.query('DELETE FROM experiences WHERE id = $1', [id]);
-  return (result.rowCount ?? 0) > 0;
+export async function deleteExperience(id: string | number): Promise<boolean> {
+  if (!isFirebaseConfigured() || !db) {
+    throw new Error('Firebase Firestore no está configurado');
+  }
+
+  const strId = String(id);
+  await deleteDoc(doc(db, 'experiences', strId));
+  return true;
 }

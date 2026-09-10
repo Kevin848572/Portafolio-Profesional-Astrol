@@ -188,7 +188,7 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
         </div>
         <div class="flex items-center gap-2">
           <button onclick='editProject(${JSON.stringify(p).replace(/'/g, "&#39;")})' class="btn-edit">Editar</button>
-          <button onclick="deleteProject(${p.id})" class="btn-danger">Eliminar</button>
+          <button onclick="deleteProject('${p.id}')" class="btn-danger">Eliminar</button>
         </div>
       </div>
     `).join('');

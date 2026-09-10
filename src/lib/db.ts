@@ -1,26 +1,7 @@
-let poolInstance: any = null;
+/**
+ * Capa de base de datos principal: Firebase Cloud Firestore
+ */
+import { db, isFirebaseConfigured } from './firebase.js';
 
-async function getPool() {
-  if (!poolInstance) {
-    const pgModule = await import('pg');
-    const pg = pgModule.default || pgModule;
-    const databaseUrl = 
-      process.env.DATABASE_URL || 
-      (typeof import.meta !== 'undefined' ? import.meta.env?.DATABASE_URL : undefined);
-
-    poolInstance = new pg.Pool({
-      connectionString: databaseUrl,
-      ssl: databaseUrl && !databaseUrl.includes('localhost') ? { rejectUnauthorized: false } : false
-    });
-  }
-  return poolInstance;
-}
-
-const pool = {
-  query: async (...args: any[]) => {
-    const p = await getPool();
-    return p.query(...args);
-  }
-};
-
-export default pool;
+export { db, isFirebaseConfigured };
+export default db;

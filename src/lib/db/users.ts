@@ -1,7 +1,7 @@
-import pool from '../db.ts';
+import { db, isFirebaseConfigured, collection, getDocs, query, where, addDoc } from '../firebase.js';
 
 export interface User {
-  id: number;
+  id: string | number;
   username: string;
   hashed_password: string;
   is_active: boolean;
@@ -11,18 +11,35 @@ export async function getUserByUsername(username: string): Promise<User | null> 
   const defaultAdminUser = process.env.ADMIN_USERNAME || 'admin';
   if (username === defaultAdminUser) {
     return {
-      id: 1,
+      id: 'default-admin',
       username: defaultAdminUser,
       hashed_password: '',
       is_active: true
     };
   }
 
+  if (!isFirebaseConfigured() || !db) {
+    return null;
+  }
+
   try {
-    const result = await pool.query('SELECT * FROM users WHERE username = $1 LIMIT 1', [username]);
-    if (result.rows.length === 0) return null;
-    return result.rows[0];
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('username', '==', username));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) return null;
+
+    const docSnap = querySnapshot.docs[0];
+    const data = docSnap.data();
+
+    return {
+      id: docSnap.id,
+      username: data.username,
+      hashed_password: data.hashed_password,
+      is_active: data.is_active !== false
+    };
   } catch (error) {
+    console.warn('Error al buscar usuario en Firestore:', error);
     return null;
   }
 }
@@ -33,7 +50,7 @@ export async function authenticateUser(username: string, password: string): Prom
 
   if (username === defaultAdminUser && password === defaultAdminPass) {
     return {
-      id: 1,
+      id: 'default-admin',
       username: defaultAdminUser,
       hashed_password: '',
       is_active: true
@@ -51,6 +68,7 @@ export async function authenticateUser(username: string, password: string): Prom
     
     return user;
   } catch (error) {
+    console.warn('Error en authenticateUser:', error);
     return null;
   }
 }
@@ -59,9 +77,23 @@ export async function createUser(username: string, password: string): Promise<Us
   const bcryptModule = await import('bcryptjs');
   const bcrypt = bcryptModule.default || bcryptModule;
   const hashed = bcrypt.hashSync(password, 10);
-  const result = await pool.query(
-    'INSERT INTO users (username, hashed_password, is_active) VALUES ($1, $2, $3) RETURNING *',
-    [username, hashed, true]
-  );
-  return result.rows[0];
+
+  if (!isFirebaseConfigured() || !db) {
+    throw new Error('Firebase no está configurado');
+  }
+
+  const usersRef = collection(db, 'users');
+  const docRef = await addDoc(usersRef, {
+    username,
+    hashed_password: hashed,
+    is_active: true,
+    created_at: new Date().toISOString()
+  });
+
+  return {
+    id: docRef.id,
+    username,
+    hashed_password: hashed,
+    is_active: true
+  };
 }

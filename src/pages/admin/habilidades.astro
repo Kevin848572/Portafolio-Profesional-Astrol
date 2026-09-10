@@ -152,7 +152,7 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
               </div>
               <div class="flex items-center gap-2">
                 <button onclick='editSkill(${JSON.stringify(s).replace(/'/g, "&#39;")})' class="btn-edit text-xs">Editar</button>
-                <button onclick="deleteSkill(${s.id})" class="btn-danger text-xs">Eliminar</button>
+                <button onclick="deleteSkill('${s.id}')" class="btn-danger text-xs">Eliminar</button>
               </div>
             </div>
           `).join('')}

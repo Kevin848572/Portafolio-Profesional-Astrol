@@ -1,6 +1,14 @@
 import type { APIRoute } from 'astro';
-import { supabase, isSupabaseConfigured } from '../../../lib/supabase.js';
-import pool from '../../../lib/db';
+import { 
+  db, 
+  isFirebaseConfigured, 
+  collection, 
+  getDocs, 
+  doc, 
+  deleteDoc, 
+  query, 
+  orderBy 
+} from '../../../lib/firebase.js';
 import { verifyAuth } from '../../../lib/auth';
 
 export const prerender = false;
@@ -9,28 +17,50 @@ export const GET: APIRoute = async ({ request }) => {
   try {
     await verifyAuth(request);
 
-    // 1. Intentar con Supabase client
-    if (isSupabaseConfigured() && supabase) {
+    if (isFirebaseConfigured() && db) {
       try {
-        const { data, error } = await supabase
-          .from('contacts')
-          .select('*')
-          .order('created_at', { ascending: false });
+        const colRef = collection(db, 'contacts');
+        const q = query(colRef, orderBy('created_at', 'desc'));
+        const snapshot = await getDocs(q);
 
-        if (!error && data) {
-          return new Response(JSON.stringify(data), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' }
-          });
-        }
-      } catch (e) {
-        console.warn('Fallback a DB pool para consultar mensajes:', e);
+        const messages = snapshot.docs.map(d => {
+          const data = d.data();
+          return {
+            id: d.id,
+            name: data.name || '',
+            email: data.email || '',
+            message: data.message || '',
+            created_at: data.created_at || null
+          };
+        });
+
+        return new Response(JSON.stringify(messages), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (fbError) {
+        console.warn('Fallback a lectura simple de contactos Firestore:', fbError);
+        // Fallback en caso de que el índice ordenado aún no esté listo
+        const snapshot = await getDocs(collection(db, 'contacts'));
+        const messages = snapshot.docs.map(d => {
+          const data = d.data();
+          return {
+            id: d.id,
+            name: data.name || '',
+            email: data.email || '',
+            message: data.message || '',
+            created_at: data.created_at || null
+          };
+        });
+        messages.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+        return new Response(JSON.stringify(messages), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        });
       }
     }
 
-    // 2. Fallback directo a PostgreSQL (DATABASE_URL)
-    const result = await pool.query('SELECT * FROM contacts ORDER BY id DESC');
-    return new Response(JSON.stringify(result.rows || []), {
+    return new Response(JSON.stringify([]), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -54,27 +84,14 @@ export const DELETE: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ detail: 'ID requerido' }), { status: 400 });
     }
 
-    // 1. Intentar con Supabase client
-    if (isSupabaseConfigured() && supabase) {
-      try {
-        const { error } = await supabase
-          .from('contacts')
-          .delete()
-          .eq('id', id);
-
-        if (!error) {
-          return new Response(JSON.stringify({ success: true }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' }
-          });
-        }
-      } catch (e) {
-        console.warn('Fallback a DB pool para eliminar mensaje:', e);
-      }
+    if (isFirebaseConfigured() && db) {
+      await deleteDoc(doc(db, 'contacts', id));
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
-    // 2. Fallback directo a PostgreSQL (DATABASE_URL)
-    await pool.query('DELETE FROM contacts WHERE id = $1', [id]);
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
