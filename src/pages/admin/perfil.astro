@@ -106,7 +106,8 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
   </main>
 </AdminLayout>
 
-<script is:inline>
+<script is:inline data-astro-rerun>
+(() => {
   const API_URL = window.PUBLIC_API_URL || '';
 
   let stats = [];
@@ -230,6 +231,6 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
     }
   });
 
-  document.addEventListener('astro:page-load', () => { if (getToken()) loadProfile(); });
   loadProfile();
+})();
 </script>

@@ -47,7 +47,8 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
   </main>
 </AdminLayout>
 
-<script is:inline>
+<script is:inline data-astro-rerun>
+(() => {
   function getToken() {
     return localStorage.getItem('admin_token');
   }
@@ -212,5 +213,5 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
   }
 
   setupMessagesPage();
-  document.addEventListener('astro:page-load', setupMessagesPage);
+})();
 </script>

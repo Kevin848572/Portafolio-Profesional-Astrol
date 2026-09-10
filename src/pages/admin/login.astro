@@ -64,7 +64,8 @@ import AdminLayout from '../../components/admin/AdminLayout.astro';
   </div>
 </AdminLayout>
 
-<script is:inline>
+<script is:inline data-astro-rerun>
+(() => {
   function setupLoginForm() {
     const token = localStorage.getItem('admin_token');
     if (token) {
@@ -76,43 +77,44 @@ import AdminLayout from '../../components/admin/AdminLayout.astro';
     const errorMsg = document.getElementById('error-message');
     const loginBtn = document.getElementById('login-btn');
 
-    form?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      
-      errorMsg.style.display = 'none';
-      loginBtn.disabled = true;
-      loginBtn.innerHTML = '<span class="material-icons-outlined text-[18px] animate-spin">refresh</span> Entrando...';
+    if (form && !form.dataset.bound) {
+      form.dataset.bound = 'true';
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        
+        errorMsg.style.display = 'none';
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<span class="material-icons-outlined text-[18px] animate-spin">refresh</span> Entrando...';
 
-      try {
-        const API_URL = window.PUBLIC_API_URL || '';
-        const response = await fetch(`${API_URL}/api/auth/login`, {
+        try {
+          const API_URL = window.PUBLIC_API_URL || '';
+          const response = await fetch(`${API_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+          });
 
+          const data = await response.json();
 
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password }),
-        });
+          if (!response.ok) {
+            throw new Error(data.detail || 'Credenciales incorrectas');
+          }
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.detail || 'Credenciales incorrectas');
+          localStorage.setItem('admin_token', data.access_token);
+          window.location.href = '/admin';
+        } catch (error) {
+          errorMsg.textContent = error.message;
+          errorMsg.style.display = 'block';
+          loginBtn.disabled = false;
+          loginBtn.innerHTML = '<span class="material-icons-outlined text-[18px]">login</span> Iniciar Sesión';
         }
-
-        localStorage.setItem('admin_token', data.access_token);
-        window.location.href = '/admin';
-      } catch (error) {
-        errorMsg.textContent = error.message;
-        errorMsg.style.display = 'block';
-        loginBtn.disabled = false;
-        loginBtn.innerHTML = '<span class="material-icons-outlined text-[18px]">login</span> Iniciar Sesión';
-      }
-    });
+      });
+    }
   }
 
   setupLoginForm();
-  document.addEventListener('astro:page-load', setupLoginForm);
+})();
 </script>

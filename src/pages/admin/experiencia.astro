@@ -77,7 +77,8 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
   </main>
 </AdminLayout>
 
-<script is:inline>
+<script is:inline data-astro-rerun>
+(() => {
   const API_URL = window.PUBLIC_API_URL || '';
 
   let editingId = null;
@@ -138,9 +139,57 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
     if (res && res.ok) loadExperiences();
   };
 
+  async function loadExperiences() {
+    const res = await fetchAPI('/api/experiences');
+    if (!res) return;
+    const experiences = await res.json();
+    const container = document.getElementById('experiences-list');
+    if (!container) return;
+
+    if (experiences.length === 0) {
+      container.innerHTML = '<p class="text-sm" style="color: var(--textMuted);">No hay experiencias aún</p>';
+      return;
+    }
+
+    container.innerHTML = experiences.map(exp => `
+      <div class="admin-card p-5">
+        <div class="flex items-start justify-between">
+          <div class="flex gap-4">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(245, 158, 11, 0.1);">
+              <span class="font-bold text-sm" style="color: var(--accent);">${exp.year}</span>
+            </div>
+            <div>
+              <p class="font-bold text-sm" style="color: var(--textMain);">${exp.role}</p>
+              <p class="text-xs mb-1" style="color: var(--accent);">${exp.company}</p>
+              <p class="text-xs" style="color: var(--textMuted);">${exp.period}</p>
+              <p class="text-sm mt-2" style="color: var(--textMuted);">${exp.description}</p>
+              ${exp.achievements && exp.achievements.length > 0 ? `
+                <ul class="mt-2 space-y-1">
+                  ${exp.achievements.map(a => `<li class="text-xs flex items-start gap-1.5" style="color: var(--textMuted);"><span style="color: var(--accent);">•</span> ${a.text}</li>`).join('')}
+                </ul>
+              ` : ''}
+              <div class="flex gap-1.5 mt-2 flex-wrap">
+                ${(exp.tags || []).map(t => `<span class="text-[10px] px-2 py-0.5 rounded-full" style="background: var(--card-bg); color: var(--textMuted); border: 1px solid var(--card-border);">${t}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick='editExperience(${JSON.stringify(exp).replace(/'/g, "&#39;")})' class="btn-edit text-xs">Editar</button>
+            <button onclick="deleteExperience('${exp.id}')" class="btn-danger text-xs">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
   function setupExperiencesPage() {
     if (!getToken()) return;
     loadExperiences();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'new') {
+      showModal();
+    }
 
     const newBtn = document.getElementById('btn-new-experience');
     if (newBtn && !newBtn.dataset.bound) {
@@ -215,5 +264,5 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
   }
 
   setupExperiencesPage();
-  document.addEventListener('astro:page-load', setupExperiencesPage);
+})();
 </script>

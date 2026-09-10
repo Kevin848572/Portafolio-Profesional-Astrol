@@ -79,7 +79,7 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
     <!-- Quick Actions -->
     <div class="admin-card p-6 mb-8">
       <h2 class="text-lg font-bold mb-4" style="color: var(--textMain);">Acciones Rápidas</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <a href="/admin/mensajes" class="flex items-center gap-3 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02]"
           style="background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(10px);">
           <span class="material-icons-outlined text-[24px]" style="color: #a78bfa;">email</span>
@@ -89,7 +89,7 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
           </div>
         </a>
 
-        <a href="/admin/proyectos" class="flex items-center gap-3 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02]"
+        <a href="/admin/proyectos?action=new" class="flex items-center gap-3 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02]"
           style="background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(10px);">
           <span class="material-icons-outlined text-[24px]" style="color: var(--accent);">add_circle</span>
           <div>
@@ -98,7 +98,16 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
           </div>
         </a>
 
-        <a href="/admin/habilidades" class="flex items-center gap-3 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02]"
+        <a href="/admin/habilidades?action=new-category" class="flex items-center gap-3 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02]"
+          style="background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(10px);">
+          <span class="material-icons-outlined text-[24px]" style="color: #a855f7;">category</span>
+          <div>
+            <p class="font-semibold text-sm" style="color: var(--textMain);">Nueva Categoría</p>
+            <p class="text-xs" style="color: var(--textMuted);">Crear categoría</p>
+          </div>
+        </a>
+
+        <a href="/admin/habilidades?action=new-skill" class="flex items-center gap-3 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02]"
           style="background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(10px);">
           <span class="material-icons-outlined text-[24px]" style="color: var(--accent-cyan);">add_circle</span>
           <div>
@@ -107,7 +116,7 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
           </div>
         </a>
 
-        <a href="/admin/experiencia" class="flex items-center gap-3 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02]"
+        <a href="/admin/experiencia?action=new" class="flex items-center gap-3 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02]"
           style="background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(10px);">
           <span class="material-icons-outlined text-[24px]" style="color: var(--accent-emerald);">add_circle</span>
           <div>
@@ -140,9 +149,9 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
   </main>
 </AdminLayout>
 
-<script is:inline>
+<script is:inline data-astro-rerun>
+(() => {
   const API_URL = window.PUBLIC_API_URL || '';
-
 
   function getToken() {
     return localStorage.getItem('admin_token');
@@ -175,37 +184,43 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
     ]);
 
     if (projects) {
-      document.getElementById('stat-projects').textContent = projects.length;
-      document.getElementById('stat-featured').textContent = projects.filter(p => p.featured).length;
+      const projEl = document.getElementById('stat-projects');
+      if (projEl) projEl.textContent = projects.length;
+      const featEl = document.getElementById('stat-featured');
+      if (featEl) featEl.textContent = projects.filter(p => p.featured).length;
 
       const recentContainer = document.getElementById('recent-projects');
-      if (projects.length === 0) {
-        recentContainer.innerHTML = '<p class="text-sm" style="color: var(--textMuted);">No hay proyectos aún</p>';
-      } else {
-        recentContainer.innerHTML = projects.slice(0, 5).map(p => `
-          <div class="flex items-center justify-between p-3 rounded-xl" style="background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(10px);">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(var(--accent-rgb), 0.1); border: 1px solid rgba(var(--accent-rgb), 0.2);">
-                <span class="material-icons-outlined text-[18px]" style="color: var(--accent);">folder</span>
+      if (recentContainer) {
+        if (projects.length === 0) {
+          recentContainer.innerHTML = '<p class="text-sm" style="color: var(--textMuted);">No hay proyectos aún</p>';
+        } else {
+          recentContainer.innerHTML = projects.slice(0, 5).map(p => `
+            <div class="flex items-center justify-between p-3 rounded-xl" style="background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(10px);">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(var(--accent-rgb), 0.1); border: 1px solid rgba(var(--accent-rgb), 0.2);">
+                  <span class="material-icons-outlined text-[18px]" style="color: var(--accent);">folder</span>
+                </div>
+                <div>
+                  <p class="font-semibold text-sm" style="color: var(--textMain);">${p.title}</p>
+                  <p class="text-xs" style="color: var(--textMuted);">${p.category}</p>
+                </div>
               </div>
-              <div>
-                <p class="font-semibold text-sm" style="color: var(--textMain);">${p.title}</p>
-                <p class="text-xs" style="color: var(--textMuted);">${p.category}</p>
-              </div>
+              ${p.featured ? '<span class="text-xs font-bold px-2 py-1 rounded-full" style="background: rgba(var(--accent-rgb), 0.15); color: var(--accent); border: 1px solid rgba(var(--accent-rgb), 0.3);">Destacado</span>' : ''}
             </div>
-            ${p.featured ? '<span class="text-xs font-bold px-2 py-1 rounded-full" style="background: rgba(var(--accent-rgb), 0.15); color: var(--accent); border: 1px solid rgba(var(--accent-rgb), 0.3);">Destacado</span>' : ''}
-          </div>
-        `).join('');
+          `).join('');
+        }
       }
     }
 
     if (skills) {
       const totalSkills = skills.reduce((acc, cat) => acc + cat.skills.length, 0);
-      document.getElementById('stat-skills').textContent = totalSkills;
+      const skillsEl = document.getElementById('stat-skills');
+      if (skillsEl) skillsEl.textContent = totalSkills;
     }
 
     if (experiences) {
-      document.getElementById('stat-experiences').textContent = experiences.length;
+      const expEl = document.getElementById('stat-experiences');
+      if (expEl) expEl.textContent = experiences.length;
     }
 
     const testBtn = document.getElementById('btn-test-firebase');
@@ -251,5 +266,5 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
   }
 
   loadDashboard();
-  document.addEventListener('astro:page-load', loadDashboard);
+})();
 </script>

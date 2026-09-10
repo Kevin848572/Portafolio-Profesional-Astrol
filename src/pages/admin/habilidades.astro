@@ -97,7 +97,8 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
   </main>
 </AdminLayout>
 
-<script is:inline>
+<script is:inline data-astro-rerun>
+(() => {
   const API_URL = window.PUBLIC_API_URL || '';
 
   let editingSkillId = null;
@@ -210,6 +211,13 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
     if (!getToken()) return;
     loadSkills();
 
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'new-category') {
+      window.showCategoryModal();
+    } else if (urlParams.get('action') === 'new-skill' || urlParams.get('action') === 'new') {
+      window.showSkillModal();
+    }
+
     const newSkillBtn = document.getElementById('btn-new-skill');
     if (newSkillBtn && !newSkillBtn.dataset.bound) {
       newSkillBtn.dataset.bound = 'true';
@@ -287,5 +295,5 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
   }
 
   setupSkillsPage();
-  document.addEventListener('astro:page-load', setupSkillsPage);
+})();
 </script>

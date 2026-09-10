@@ -108,7 +108,8 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
   </main>
 </AdminLayout>
 
-<script is:inline>
+<script is:inline data-astro-rerun>
+(() => {
   const API_URL = window.PUBLIC_API_URL || '';
 
   let editingId = null;
@@ -211,6 +212,11 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
 
     loadProjects();
 
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'new') {
+      showModal();
+    }
+
     const newBtn = document.getElementById('btn-new-project');
     if (newBtn && !newBtn.dataset.bound) {
       newBtn.dataset.bound = 'true';
@@ -296,5 +302,5 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
   }
 
   setupProjectsPage();
-  document.addEventListener('astro:page-load', setupProjectsPage);
+})();
 </script>
