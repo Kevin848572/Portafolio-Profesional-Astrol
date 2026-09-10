@@ -1,130 +1,90 @@
 ---
+import KevinDevLogo from './KevinDevLogo.astro';
 import { ProfileController } from '../../controllers/ProfileController.js';
 
 const heroData = ProfileController.getHeroData();
 ---
 
-<section class="relative min-h-[90vh] flex flex-col items-center justify-center pt-24 pb-12 overflow-hidden select-none">
+<section id="inicio" class="relative min-h-[92vh] flex flex-col items-center justify-center pt-24 pb-12 px-4 overflow-hidden select-none">
   
-  <!-- Glowing Background Radial Glow behind the big PORTFOLIO text -->
-  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] sm:w-[540px] sm:h-[540px] md:w-[800px] md:h-[800px] rounded-full bg-accent/10 blur-[110px] md:blur-[150px] pointer-events-none z-0"></div>
+  <!-- Resplandor ambiental de fondo (Neón Azul / Cian) -->
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] sm:w-[600px] sm:h-[600px] md:w-[850px] md:h-[850px] rounded-full bg-cyan-500/10 blur-[120px] md:blur-[160px] pointer-events-none z-0"></div>
 
-  <!-- Badge de disponibilidad flotante -->
-  <div class="hero-status-badge z-30 mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/30 bg-cardBg/70 backdrop-blur-md text-xs font-semibold text-textMain shadow-[0_0_20px_rgba(245,158,11,0.15)] opacity-0">
-    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-    <span class="w-2 h-2 rounded-full bg-emerald-400 -ml-4"></span>
-    <span class="tracking-wide uppercase text-[11px] text-accent font-bold font-mono">{heroData.status}</span>
-  </div>
-
-  <!-- Contenedor del Monograma Glassmorphic y Badges Flotantes -->
-  <div class="relative flex flex-col items-center justify-center z-20 my-4 sm:my-6">
+  <!-- Contenedor Central del Logo SVG con Neón Fluido -->
+  <div class="hero-monogram-card relative z-20 flex flex-col items-center justify-center w-full max-w-4xl mx-auto transition-transform duration-500">
     
-    <!-- Texto Gigante de Fondo "PORTAFOLIO" con Marcadura de Agua Elegante -->
-    <h1 class="portfolio-title absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-screen text-[clamp(2.8rem,13vw,11rem)] font-black tracking-[clamp(0.04em,1.5vw,0.3em)] z-0 pointer-events-none text-center uppercase font-mono opacity-0 select-none">
-      PORTAFOLIO
-    </h1>
-
-    <!-- Tarjeta Central Glassmorphism con Monograma KP y Brillo Neón -->
-    <div class="hero-monogram-card relative z-10 flex flex-col items-center justify-center p-6 sm:p-8 rounded-3xl border border-white/15 bg-cardBg/50 backdrop-blur-2xl shadow-[0_15px_50px_rgba(0,0,0,0.5)] group transition-all duration-500 hover:scale-105 hover:border-accent/50 hover:shadow-[0_0_50px_rgba(245,158,11,0.3)] opacity-0">
-      
-      <!-- Monograma / Retrato Fotográfico en Escala de Grises con Revelado y Transición a Color al Hover -->
-      <div class="relative w-28 h-28 sm:w-36 sm:h-36 rounded-2xl p-1.5 bg-gradient-to-br from-accent/40 via-white/10 to-accent/20 border border-accent/60 flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.25)] overflow-visible group-hover:border-accent group-hover:shadow-[0_0_45px_rgba(245,158,11,0.5)] transition-all duration-500">
-        <div class="w-full h-full rounded-xl overflow-hidden relative">
-          <img 
-            src="/foto_mia.png" 
-            alt="Foto de Kevin Pérez" 
-            class="hero-profile-image w-full h-full object-cover object-[center_15%] shadow-md transition-all duration-700 filter grayscale contrast-110 group-hover:grayscale-0 group-hover:scale-105"
-          />
-          <div class="absolute inset-0 bg-gradient-to-b from-transparent via-accent/10 to-transparent opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500"></div>
-        </div>
-
-        <!-- Insignia Flotante del Logo Oficial -->
-        <div class="absolute -bottom-2 -right-2 w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-cardBg border border-accent/70 p-1 shadow-[0_0_15px_rgba(245,158,11,0.4)] flex items-center justify-center z-20 transition-transform duration-300 group-hover:scale-110">
-          <img src="/logo.png" alt="Logo KevinDev" class="w-full h-full object-contain" />
-        </div>
-      </div>
-
-      <!-- Detalle Tecnológico bajo Monograma -->
-      <div class="mt-4 flex items-center gap-2 text-[11px] uppercase tracking-widest text-textMuted font-mono font-semibold">
-        <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
-        Frontend & UI Specialist
-      </div>
-
-      <!-- Badges Flotantes de Tecnologías Alrededor (Con Física Elástica) -->
-      <div class="hero-tech-badge interactive-tag absolute -top-4 -left-6 sm:-left-12 px-3.5 py-1.5 rounded-full bg-cardBg/90 border border-accent/40 backdrop-blur-md text-[11px] font-bold text-textMain shadow-lg flex items-center gap-1.5 transition-transform duration-300 hover:scale-110 hover:border-accent cursor-default opacity-0">
-        <span class="text-accent font-mono">✦</span> Astro
-      </div>
-
-      <div class="hero-tech-badge interactive-tag absolute -top-4 -right-6 sm:-right-12 px-3.5 py-1.5 rounded-full bg-cardBg/90 border border-cyan-500/40 backdrop-blur-md text-[11px] font-bold text-textMain shadow-lg flex items-center gap-1.5 transition-transform duration-300 hover:scale-110 hover:border-cyan-400 cursor-default opacity-0">
-        <span class="text-cyan-400 font-mono">⚛</span> React
-      </div>
-
-      <div class="hero-tech-badge interactive-tag absolute -bottom-4 -left-6 sm:-left-12 px-3.5 py-1.5 rounded-full bg-cardBg/90 border border-teal-500/40 backdrop-blur-md text-[11px] font-bold text-textMain shadow-lg flex items-center gap-1.5 transition-transform duration-300 hover:scale-110 hover:border-teal-400 cursor-default opacity-0">
-        <span class="text-teal-400 font-mono">≋</span> Tailwind
-      </div>
-
-      <div class="hero-tech-badge interactive-tag absolute -bottom-4 -right-6 sm:-right-12 px-3.5 py-1.5 rounded-full bg-cardBg/90 border border-violet-500/40 backdrop-blur-md text-[11px] font-bold text-textMain shadow-lg flex items-center gap-1.5 transition-transform duration-300 hover:scale-110 hover:border-violet-400 cursor-default opacity-0">
-        <span class="text-violet-400 font-mono">⚡</span> GSAP
-      </div>
-
+    <!-- Logo SVG Neón Fiel a la Imagen: Átomo React + Astro + AWS + KEVINDEV + Especialista -->
+    <div class="w-full max-w-[340px] sm:max-w-[480px] md:max-w-[580px] lg:max-w-[640px] px-2 flex justify-center">
+      <KevinDevLogo />
     </div>
 
-  </div>
-
-  <!-- Kinetic Typography: Nombre, Titular y Máscaras de Texto -->
-  <div class="z-30 mt-4 text-center max-w-3xl px-4 flex flex-col items-center gap-3">
-    
-    <!-- Título Principal con Máscara Cinética -->
-    <div class="overflow-hidden py-1">
-      <h2 class="kinetic-line-inner block text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-textMain">
-        {heroData.name}
-      </h2>
-    </div>
-
-    <!-- Subtítulo de Rol con Máscara Cinética -->
-    <div class="overflow-hidden py-0.5">
-      <p class="kinetic-line-inner block text-xs sm:text-base text-accent uppercase font-bold tracking-[0.24em] font-mono">
-        {heroData.role}
+    <!-- Descripción Biográfica Principal (Adaptativa, Nítida y con Contraste Óptimo) -->
+    <div class="mt-4 sm:mt-6 text-center max-w-2xl px-4">
+      <p class="hero-bio-desc text-sm sm:text-base md:text-lg leading-relaxed transition-colors duration-300">
+        Desarrollador Web especializado en la creación de interfaces estéticas, reactivas y de alto rendimiento utilizando Astro, React y Tailwind CSS.
       </p>
     </div>
 
-    <!-- Descripción breve cinematográfica -->
-    <div class="overflow-hidden py-1 max-w-xl">
-      <p class="kinetic-line-inner block text-xs sm:text-sm text-textMuted font-light leading-relaxed">
-        {heroData.subtitle}
-      </p>
-    </div>
-
-    <!-- Botones de Acción CTA con Microinteracción Magnética -->
-    <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mt-4">
+    <!-- Botones de Acción Elegantes con Efecto Glassmorphism Neón -->
+    <div class="flex flex-wrap items-center justify-center gap-3.5 sm:gap-5 mt-8 z-30">
       <a 
         href="/proyectos" 
-        class="hero-cta-btn magnetic-btn px-7 py-3.5 rounded-full bg-accent text-background font-black text-xs uppercase tracking-widest hover:scale-105 hover:shadow-[0_0_30px_rgba(245,158,11,0.6)] active:scale-95 transition-all duration-300 shadow-md flex items-center gap-2 opacity-0"
+        class="hero-cta-btn px-7 py-3 rounded-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs uppercase tracking-widest hover:scale-105 hover:shadow-[0_0_28px_rgba(6,182,212,0.65)] active:scale-95 transition-all duration-300 shadow-md flex items-center gap-2"
       >
         <span>Explorar Proyectos</span>
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
         </svg>
       </a>
+
       <a 
         href="/#panel-control" 
-        class="hero-cta-btn magnetic-btn px-7 py-3.5 rounded-full border border-cardBorder bg-cardBg/60 backdrop-blur-md text-textMain hover:text-accent hover:border-accent/50 font-bold text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all duration-300 opacity-0 flex items-center gap-1.5"
+        class="hero-cta-secondary px-7 py-3 rounded-full border border-cyan-600/30 font-bold text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-1.5 shadow-sm"
       >
-        <span class="material-icons-outlined text-sm text-accent">dashboard</span>
-        <span>Ver Panel & Métricas</span>
+        <span class="material-icons-outlined text-sm text-cyan-600 dark:text-cyan-400">dashboard</span>
+        <span>Ver Panel &amp; Métricas</span>
       </a>
     </div>
+
   </div>
 
 </section>
 
 <style>
-  .portfolio-title {
-    color: rgba(255, 255, 255, 0.05);
-    transition: color 0.4s ease;
+  .hero-bio-desc {
+    color: #cbd5e1;
+    font-weight: 300;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
   }
 
-  :global(.light) .portfolio-title {
-    color: rgba(15, 23, 42, 0.05);
+  .hero-cta-secondary {
+    background: rgba(6, 12, 30, 0.65);
+    color: #f8fafc;
+    border-color: rgba(6, 182, 212, 0.3);
+    backdrop-filter: blur(16px);
+  }
+
+  .hero-cta-secondary:hover {
+    color: #67e8f9;
+    border-color: rgba(6, 182, 212, 0.6);
+  }
+
+  /* Modo Claro */
+  :global(.light) .hero-bio-desc {
+    color: #334155;
+    font-weight: 500;
+    text-shadow: none;
+  }
+
+  :global(.light) .hero-cta-secondary {
+    background: rgba(255, 255, 255, 0.85);
+    color: #0f172a;
+    border-color: rgba(2, 132, 199, 0.35);
+    backdrop-filter: blur(16px);
+  }
+
+  :global(.light) .hero-cta-secondary:hover {
+    color: #0284c7;
+    border-color: rgba(2, 132, 199, 0.7);
   }
 </style>

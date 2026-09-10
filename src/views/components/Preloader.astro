@@ -20,14 +20,12 @@
   <div class="relative z-10 flex flex-col items-center justify-center gap-6 px-6 max-w-sm w-full text-center">
     
     <!-- Monograma Central con Pulso Glow -->
-    <div id="preloader-logo" class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl p-1 bg-gradient-to-br from-accent/40 via-cardBg to-accent/20 border border-accent/60 flex items-center justify-center shadow-[0_0_35px_rgba(212,175,55,0.35)]">
-      <div class="w-full h-full rounded-xl bg-[#09090b] flex items-center justify-center overflow-hidden">
-        <span class="font-black text-2xl sm:text-3xl tracking-tighter text-accent drop-shadow-[0_0_10px_rgba(212,175,55,0.7)]">
-          KP
-        </span>
+    <div id="preloader-logo" class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl p-1 bg-gradient-to-br from-cyan-400/40 via-cardBg to-blue-500/20 border border-cyan-400/60 flex items-center justify-center shadow-[0_0_35px_rgba(6,182,212,0.45)]">
+      <div class="w-full h-full rounded-xl bg-[#09090b] flex items-center justify-center overflow-hidden p-2">
+        <img src="/kevindev-logo.svg" alt="KevinDev Logo" class="w-full h-auto drop-shadow-[0_0_12px_rgba(6,182,212,0.8)]" />
       </div>
       <!-- Halo de pulso exterior -->
-      <div class="absolute -inset-1 rounded-2xl bg-accent/20 blur-md pointer-events-none -z-10 animate-pulse"></div>
+      <div class="absolute -inset-1 rounded-2xl bg-cyan-400/20 blur-md pointer-events-none -z-10 animate-pulse"></div>
     </div>
 
     <!-- Contador Porcentual Monoespaciado (00% -> 100%) -->
@@ -38,8 +36,8 @@
       
       <!-- Estado de Carga Tech / Cyberpunk Clean -->
       <div class="flex items-center gap-2">
-        <span class="w-1.5 h-1.5 rounded-full bg-accent animate-ping"></span>
-        <span id="preloader-status" class="text-[10px] sm:text-xs font-mono font-semibold tracking-widest text-accent uppercase">
+        <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+        <span id="preloader-status" class="text-[10px] sm:text-xs font-mono font-semibold tracking-widest text-cyan-400 uppercase">
           INICIALIZANDO KERNEL...
         </span>
       </div>
@@ -47,7 +45,7 @@
 
     <!-- Barra de Progreso Minimalista -->
     <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden border border-white/5 p-[1px]">
-      <div id="preloader-progress-bar" class="h-full bg-gradient-to-r from-amber-500 via-accent to-yellow-200 rounded-full transition-all duration-75 shadow-[0_0_12px_rgba(212,175,55,0.8)]" style="width: 0%;"></div>
+      <div id="preloader-progress-bar" class="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-sky-300 rounded-full transition-all duration-75 shadow-[0_0_12px_rgba(6,182,212,0.8)]" style="width: 0%;"></div>
     </div>
 
     <!-- Pie de página técnico de preloader -->
