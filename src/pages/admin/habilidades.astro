@@ -1,4 +1,5 @@
 ---
+export const prerender = false;
 import AdminLayout from '../../components/admin/AdminLayout.astro';
 import AdminSidebar from '../../components/admin/AdminSidebar.astro';
 import AdminNavbar from '../../components/admin/AdminNavbar.astro';
@@ -124,13 +125,19 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
     return res;
   }
 
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+  }
+
   async function loadSkills() {
     const res = await fetchAPI('/api/skills');
     if (!res) return;
     categories = await res.json();
     const container = document.getElementById('skills-container');
 
-    if (categories.length === 0) {
+    if (!categories || categories.length === 0) {
       container.innerHTML = '<p class="text-sm" style="color: var(--textMuted);">No hay categorías ni skills aún</p>';
       return;
     }
@@ -140,27 +147,46 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-3">
             <span class="material-icons-outlined text-[20px]" style="color: var(--accent);">category</span>
-            <h3 class="font-bold" style="color: var(--textMain);">${cat.name}</h3>
-            <span class="text-xs px-2 py-0.5 rounded-full" style="background: var(--card-bg); color: var(--textMuted);">${cat.skills.length} skills</span>
+            <h3 class="font-bold" style="color: var(--textMain);">${escapeHtml(cat.name)}</h3>
+            <span class="text-xs px-2 py-0.5 rounded-full" style="background: var(--card-bg); color: var(--textMuted);">${cat.skills ? cat.skills.length : 0} skills</span>
           </div>
         </div>
         <div class="space-y-2">
-          ${cat.skills.map(s => `
+          ${(cat.skills || []).map(s => `
             <div class="flex items-center justify-between p-3 rounded-xl" style="background: var(--card-bg); border: 1px solid var(--card-border);">
               <div class="flex items-center gap-3">
-                <span class="font-semibold text-sm" style="color: var(--textMain);">${s.name}</span>
-                <span class="text-xs px-2 py-0.5 rounded-full" style="background: rgba(245, 158, 11, 0.1); color: var(--accent);">${s.level}</span>
+                <span class="font-semibold text-sm" style="color: var(--textMain);">${escapeHtml(s.name)}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full" style="background: rgba(245, 158, 11, 0.1); color: var(--accent);">${escapeHtml(s.level)}</span>
               </div>
               <div class="flex items-center gap-2">
-                <button onclick='editSkill(${JSON.stringify(s).replace(/'/g, "&#39;")})' class="btn-edit text-xs">Editar</button>
-                <button onclick="deleteSkill('${s.id}')" class="btn-danger text-xs">Eliminar</button>
+                <button data-action="edit-skill" data-cat-id="${escapeHtml(cat.id)}" data-id="${escapeHtml(s.id)}" class="btn-edit text-xs">Editar</button>
+                <button data-action="delete-skill" data-id="${escapeHtml(s.id)}" class="btn-danger text-xs">Eliminar</button>
               </div>
             </div>
           `).join('')}
-          ${cat.skills.length === 0 ? '<p class="text-xs" style="color: var(--textMuted);">Sin skills en esta categoría</p>' : ''}
+          ${(!cat.skills || cat.skills.length === 0) ? '<p class="text-xs" style="color: var(--textMuted);">Sin skills en esta categoría</p>' : ''}
         </div>
       </div>
     `).join('');
+
+    if (!container.dataset.delegated) {
+      container.dataset.delegated = 'true';
+      container.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const action = btn.getAttribute('data-action');
+        const id = btn.getAttribute('data-id');
+        const catId = btn.getAttribute('data-cat-id');
+
+        if (action === 'edit-skill') {
+          const category = categories.find(c => String(c.id) === catId);
+          const skill = category?.skills?.find(s => String(s.id) === id);
+          if (skill) showSkillModal(skill);
+        } else if (action === 'delete-skill') {
+          window.deleteSkill(id);
+        }
+      });
+    }
   }
 
   function showSkillModal(skill = null) {
@@ -168,7 +194,7 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
     const title = document.getElementById('skill-modal-title');
     const categorySelect = document.getElementById('s-category');
     
-    categorySelect.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    categorySelect.innerHTML = categories.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}</option>`).join('');
 
     if (skill) {
       editingSkillId = skill.id;
@@ -208,7 +234,6 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
   };
 
   function setupSkillsPage() {
-    if (!getToken()) return;
     loadSkills();
 
     const urlParams = new URLSearchParams(window.location.search);

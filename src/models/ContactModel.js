@@ -1,6 +1,6 @@
 export class ContactModel {
   /**
-   * Valida los campos del formulario de contacto.
+   * Valida los campos del formulario de contacto con límites estrictos.
    * @param {Object} data - Datos a validar ({ name, email, message, _gotcha }).
    * @returns {Object} { isValid: boolean, errors: Object }
    */
@@ -12,17 +12,17 @@ export class ContactModel {
       return { isValid: false, errors: { bot: 'Solicitud rechazada.' } };
     }
 
-    if (!data.name || typeof data.name !== 'string' || data.name.trim().length < 2) {
-      errors.name = 'El nombre debe tener al menos 2 caracteres.';
+    if (!data.name || typeof data.name !== 'string' || data.name.trim().length < 2 || data.name.trim().length > 100) {
+      errors.name = 'El nombre debe tener entre 2 y 100 caracteres.';
     }
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!data.email || typeof data.email !== 'string' || !emailRegex.test(data.email.trim())) {
-      errors.email = 'Introduce una dirección de correo electrónico válida.';
+    if (!data.email || typeof data.email !== 'string' || data.email.length > 254 || !emailRegex.test(data.email.trim())) {
+      errors.email = 'Introduce una dirección de correo electrónico válida (máximo 254 caracteres).';
     }
     
-    if (!data.message || typeof data.message !== 'string' || data.message.trim().length < 10) {
-      errors.message = 'El mensaje debe contener al menos 10 caracteres.';
+    if (!data.message || typeof data.message !== 'string' || data.message.trim().length < 10 || data.message.trim().length > 3000) {
+      errors.message = 'El mensaje debe tener entre 10 y 3000 caracteres.';
     }
     
     return {
@@ -32,16 +32,16 @@ export class ContactModel {
   }
 
   /**
-   * Sanitiza las cadenas de texto ingresadas.
+   * Sanitiza y trunca las cadenas de texto ingresadas para mitigar ataques DoS.
    * @param {Object} data 
    * @returns {Object}
    */
   static sanitize(data = {}) {
     return {
-      name: (data.name || '').toString().trim(),
-      email: (data.email || '').toString().trim().toLowerCase(),
-      message: (data.message || '').toString().trim(),
-      _gotcha: (data._gotcha || '').toString().trim()
+      name: (data.name || '').toString().trim().slice(0, 100),
+      email: (data.email || '').toString().trim().toLowerCase().slice(0, 254),
+      message: (data.message || '').toString().trim().slice(0, 3000),
+      _gotcha: (data._gotcha || '').toString().trim().slice(0, 100)
     };
   }
 }

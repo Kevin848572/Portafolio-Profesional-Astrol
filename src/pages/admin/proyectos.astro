@@ -1,4 +1,5 @@
 ---
+export const prerender = false;
 import AdminLayout from '../../components/admin/AdminLayout.astro';
 import AdminSidebar from '../../components/admin/AdminSidebar.astro';
 import AdminNavbar from '../../components/admin/AdminNavbar.astro';
@@ -165,34 +166,71 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
     editingId = null;
   }
 
+  let cachedProjects = [];
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+  }
+
+  function sanitizeUrl(url) {
+    if (!url) return '';
+    const trimmed = String(url).trim();
+    if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith('/') || trimmed.startsWith('data:image/')) {
+      return escapeHtml(trimmed);
+    }
+    return '';
+  }
+
   async function loadProjects() {
     const res = await fetchAPI('/api/projects');
     if (!res) return;
     const projects = await res.json();
+    cachedProjects = projects || [];
     const container = document.getElementById('projects-list');
 
-    if (projects.length === 0) {
+    if (!projects || projects.length === 0) {
       container.innerHTML = '<p class="text-sm" style="color: var(--textMuted);">No hay proyectos aún</p>';
       return;
     }
 
-    container.innerHTML = projects.map(p => `
-      <div class="admin-card p-4 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden" style="background: var(--card-bg); border: 1px solid var(--card-border);">
-            ${p.image ? `<img src="${p.image}" alt="" class="w-full h-full object-cover" />` : '<span class="material-icons-outlined" style="color: var(--accent);">image</span>'}
+    container.innerHTML = projects.map(p => {
+      const safeImage = sanitizeUrl(p.image);
+      return `
+        <div class="admin-card p-4 flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden" style="background: var(--card-bg); border: 1px solid var(--card-border);">
+              ${safeImage ? `<img src="${safeImage}" alt="" class="w-full h-full object-cover" />` : '<span class="material-icons-outlined" style="color: var(--accent);">image</span>'}
+            </div>
+            <div>
+              <p class="font-semibold text-sm" style="color: var(--textMain);">${escapeHtml(p.title)}</p>
+              <p class="text-xs" style="color: var(--textMuted);">${escapeHtml(p.category)} ${p.featured ? '· Destacado' : ''}</p>
+            </div>
           </div>
-          <div>
-            <p class="font-semibold text-sm" style="color: var(--textMain);">${p.title}</p>
-            <p class="text-xs" style="color: var(--textMuted);">${p.category} ${p.featured ? '· Destacado' : ''}</p>
+          <div class="flex items-center gap-2">
+            <button data-action="edit" data-id="${escapeHtml(p.id)}" class="btn-edit">Editar</button>
+            <button data-action="delete" data-id="${escapeHtml(p.id)}" class="btn-danger">Eliminar</button>
           </div>
         </div>
-        <div class="flex items-center gap-2">
-          <button onclick='editProject(${JSON.stringify(p).replace(/'/g, "&#39;")})' class="btn-edit">Editar</button>
-          <button onclick="deleteProject('${p.id}')" class="btn-danger">Eliminar</button>
-        </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
+
+    if (!container.dataset.delegated) {
+      container.dataset.delegated = 'true';
+      container.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const id = btn.getAttribute('data-id');
+        const action = btn.getAttribute('data-action');
+        if (action === 'edit') {
+          const project = cachedProjects.find(p => String(p.id) === id);
+          if (project) showModal(project);
+        } else if (action === 'delete') {
+          window.deleteProject(id);
+        }
+      });
+    }
   }
 
   window.showProjectModal = showModal;
@@ -208,8 +246,6 @@ import AdminNavbar from '../../components/admin/AdminNavbar.astro';
   };
 
   function setupProjectsPage() {
-    if (!getToken()) return;
-
     loadProjects();
 
     const urlParams = new URLSearchParams(window.location.search);

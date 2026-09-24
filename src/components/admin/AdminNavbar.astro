@@ -68,8 +68,11 @@ const { title } = Astro.props;
       updateIcons();
     });
 
-    logout?.addEventListener('click', () => {
+    logout?.addEventListener('click', async () => {
       localStorage.removeItem('admin_token');
+      try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+      } catch (e) {}
       window.location.href = '/admin/login';
     });
 

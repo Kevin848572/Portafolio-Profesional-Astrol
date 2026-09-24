@@ -59,6 +59,7 @@ export async function login(username: string, password: string): Promise<{ acces
 
 export function logout(): void {
   removeToken();
+  fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
   window.location.href = '/admin/login';
 }
 

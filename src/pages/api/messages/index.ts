@@ -65,10 +65,11 @@ export const GET: APIRoute = async ({ request }) => {
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error: any) {
-    const status = error.message?.includes('No autorizado') ? 401 : 500;
+    const isAuth = error.message?.includes('No autorizado');
+    if (!isAuth) console.error('[API messages GET error]:', error);
     return new Response(
-      JSON.stringify({ detail: error.message || 'Error en el servidor' }),
-      { status, headers: { 'Content-Type': 'application/json' } }
+      JSON.stringify({ detail: isAuth ? error.message : 'Error interno en el servidor' }),
+      { status: isAuth ? 401 : 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
 };
@@ -97,10 +98,11 @@ export const DELETE: APIRoute = async ({ request }) => {
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error: any) {
-    const status = error.message?.includes('No autorizado') ? 401 : 500;
+    const isAuth = error.message?.includes('No autorizado');
+    if (!isAuth) console.error('[API messages DELETE error]:', error);
     return new Response(
-      JSON.stringify({ detail: error.message || 'Error al eliminar' }),
-      { status, headers: { 'Content-Type': 'application/json' } }
+      JSON.stringify({ detail: isAuth ? error.message : 'Error interno al eliminar el mensaje' }),
+      { status: isAuth ? 401 : 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
 };

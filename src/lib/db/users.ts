@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import { db, isFirebaseConfigured, collection, getDocs, query, where, addDoc } from '../firebase.js';
 
 export interface User {
@@ -7,9 +8,22 @@ export interface User {
   is_active: boolean;
 }
 
+/**
+ * Comparación segura en tiempo constante para evitar Timing Attacks.
+ */
+function safeCompare(input: string, secret: string): boolean {
+  const bufInput = Buffer.from(input || '', 'utf8');
+  const bufSecret = Buffer.from(secret || '', 'utf8');
+  if (bufInput.length !== bufSecret.length) {
+    crypto.timingSafeEqual(bufInput, bufInput);
+    return false;
+  }
+  return crypto.timingSafeEqual(bufInput, bufSecret);
+}
+
 export async function getUserByUsername(username: string): Promise<User | null> {
   const defaultAdminUser = process.env.ADMIN_USERNAME || 'admin';
-  if (username === defaultAdminUser) {
+  if (username && safeCompare(username, defaultAdminUser)) {
     return {
       id: 'default-admin',
       username: defaultAdminUser,
@@ -48,7 +62,7 @@ export async function authenticateUser(username: string, password: string): Prom
   const defaultAdminUser = process.env.ADMIN_USERNAME || 'admin';
   const defaultAdminPass = process.env.ADMIN_PASSWORD || 'admin123';
 
-  if (username === defaultAdminUser && password === defaultAdminPass) {
+  if (safeCompare(username, defaultAdminUser) && safeCompare(password, defaultAdminPass)) {
     return {
       id: 'default-admin',
       username: defaultAdminUser,

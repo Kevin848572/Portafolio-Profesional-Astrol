@@ -20,8 +20,9 @@ export const GET: APIRoute = async ({ params }) => {
     }
     return new Response(JSON.stringify(skill), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (error: any) {
+    console.error('[API skills GET error]:', error);
     return new Response(
-      JSON.stringify({ detail: error.message || 'Error en el servidor' }),
+      JSON.stringify({ detail: 'Error interno en el servidor' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
@@ -46,10 +47,11 @@ export const PUT: APIRoute = async ({ params, request }) => {
     }
     return new Response(JSON.stringify(updated), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (error: any) {
-    const status = error.message?.includes('No autorizado') ? 401 : 500;
+    const isAuth = error.message?.includes('No autorizado');
+    if (!isAuth) console.error('[API skills PUT error]:', error);
     return new Response(
-      JSON.stringify({ detail: error.message || 'Error en el servidor' }),
-      { status, headers: { 'Content-Type': 'application/json' } }
+      JSON.stringify({ detail: isAuth ? error.message : 'Error interno en el servidor' }),
+      { status: isAuth ? 401 : 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
 };
@@ -72,10 +74,11 @@ export const DELETE: APIRoute = async ({ params, request }) => {
     }
     return new Response(null, { status: 204 });
   } catch (error: any) {
-    const status = error.message?.includes('No autorizado') ? 401 : 500;
+    const isAuth = error.message?.includes('No autorizado');
+    if (!isAuth) console.error('[API skills DELETE error]:', error);
     return new Response(
-      JSON.stringify({ detail: error.message || 'Error en el servidor' }),
-      { status, headers: { 'Content-Type': 'application/json' } }
+      JSON.stringify({ detail: isAuth ? error.message : 'Error interno en el servidor' }),
+      { status: isAuth ? 401 : 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
 };
